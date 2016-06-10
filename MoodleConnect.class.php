@@ -6,41 +6,48 @@ require 'bootstrap.php';
  *
  * ...
  *
- * @author  Till GlÃ¶ggler <tgloeggl@uos.de>
+ * @author  Till Glöggler <tgloeggl@uos.de>
  * @version 0.1a
  */
 
-class MoodleConnect extends StudIPPlugin implements StandardPlugin {
+require_once('models/REST.php');
 
-    public function __construct() {
+class MoodleConnect extends StudIPPlugin implements StandardPlugin
+{
+
+    public function __construct()
+    {
         parent::__construct();
-
-        $navigation = new AutoNavigation(_('a'));
-        $navigation->setURL(PluginEngine::GetURL($this, array(), 'show'));
-        $navigation->setImage(Assets::image_path('blank.gif'));
-        Navigation::addItem('/a', $navigation);
     }
 
-    public function initialize () {
-
-    
+    public function initialize ()
+    {
         PageLayout::addStylesheet($this->getPluginURL().'/assets/style.css');
         PageLayout::addScript($this->getPluginURL().'/assets/application.js');
     }
 
-    public function getTabNavigation($course_id) {
+    public function getTabNavigation($course_id)
+    {
+        return array(
+            'moodle' => new Navigation(
+                'Moodle',
+                PluginEngine::getURL($this, array(), 'index')
+            )
+        );
+    }
+
+    public function getNotificationObjects($course_id, $since, $user_id)
+    {
         return array();
     }
 
-    public function getNotificationObjects($course_id, $since, $user_id) {
-        return array();
-    }
-
-    public function getIconNavigation($course_id, $last_visit, $user_id) {
+    public function getIconNavigation($course_id, $last_visit, $user_id)
+    {
         // ...
     }
 
-    public function getInfoTemplate($course_id) {
+    public function getInfoTemplate($course_id)
+    {
         // ...
     }
 
