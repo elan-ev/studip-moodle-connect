@@ -5,15 +5,21 @@ namespace Moodle;
 class REST
 {
     static $uri;
+    static $token;
 
     public static function setServiceURI($uri)
     {
         self::$uri = rtrim($uri, '/');
     }
 
-    public function get($path)
+    public static function setToken($token)
     {
-        $curl = curl_init($uri .'/'. ltrim($path, '/'));
+        self::$token = $token;
+    }
+
+    public function get($function)
+    {
+        $curl = curl_init($uri .'/webservice/rest/server.php?wstoken=' . self::$token . '&wsfunction=' . $function . '&moodlewsrestformat=json');
 
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
@@ -24,9 +30,9 @@ class REST
     }
 
 
-    public function post($path, $data)
+    public function post($function, $data)
     {
-        $curl = curl_init($uri .'/'. ltrim($path, '/'));
+        $curl = curl_init($uri .'/webservice/rest/server.php?wstoken=' . self::$token . '&wsfunction=' . $function . '&moodlewsrestformat=json');
 
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_POST, true);

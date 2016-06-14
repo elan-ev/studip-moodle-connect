@@ -11,6 +11,7 @@ require 'bootstrap.php';
  */
 
 require_once('models/REST.php');
+require_once('models/Connect.php');
 
 class MoodleConnect extends StudIPPlugin implements StandardPlugin
 {
