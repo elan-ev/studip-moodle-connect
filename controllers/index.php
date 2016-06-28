@@ -24,7 +24,7 @@ class IndexController extends StudipController {
     public function index_action()
     {
         SimpleORMap::expireTableScheme();
-        $this->moodle = Moodle\Connect::findOneByRange_Id($this->course_id);
+        $this->moodle = Moodle\ConnectCourses::findOneByCourse_Id($this->course_id);
 
         if ($this->moodle) {
             $this->connected_course = array_pop(Moodle\REST::post('core_course_get_courses', array(
@@ -37,8 +37,6 @@ class IndexController extends StudipController {
         } else {
             $this->moodle_courses = Moodle\REST::get('core_course_get_courses');
         }
-
-        // $this->moodle_courses = Moodle\REST::get('');
     }
 
     public function connect_action($moodle_course = null)
@@ -53,9 +51,8 @@ class IndexController extends StudipController {
             throw new InvalidArgumentException('No course id given while trying to connect to moodle course');
         }
 
-        $connect = new Moodle\Connect();
-        $connect->type = 'course';
-        $connect->range_id = $this->course_id;
+        $connect = new Moodle\ConnectCourses();
+        $connect->course_id = $this->course_id;
         $connect->moodle_id = Request::option('moodle_course', $moodle_course);
 
         $connect->store();
@@ -79,11 +76,13 @@ class IndexController extends StudipController {
             throw new InvalidArgumentException('No course id given while trying to disconnect to moodle course');
         }
 
-        if ($connect = Moodle\Connect::findOneByRange_id($this->course_id)) {
+        if ($connect = Moodle\ConnectCourses::findOneByCourse_id($this->course_id)) {
             if ($connect->moodle_id == $moodle_id) {
                 $connect->delete();
             }
         }
+
+        // TODO: remove participants of current course from moodle_course (vs. remove all participants?!?)
 
         PageLayout::postMessage(MessageBox::success(
             _('Diese Veranstaltung ist nun mit keinem Moodle-Kurs mehr verknüpft.')
@@ -99,7 +98,7 @@ class IndexController extends StudipController {
         }
 
         // get connected course
-        $connected_course = Moodle\Connect::findOneByRange_id($this->course_id);
+        $connected_course = Moodle\ConnectCourses::findOneByCourse_id($this->course_id);
 
         if ($connected_course) {
             // check if the current user already exists in Moodle
@@ -111,10 +110,12 @@ class IndexController extends StudipController {
 
             // if user does not exists in moodle, create it
             if (empty($users['users'])) {
+                $pw = Moodle\REST::createPassword();
+
                 $data = array('users' => array(
                     array(
                         'username'  => $GLOBALS['user']->username,
-                        'password'  => 'W45wef6ew5#',
+                        'password'  => $pw,
                         'firstname' => $GLOBALS['user']->vorname,
                         'lastname'  => $GLOBALS['user']->nachname,
                         'email'     => $GLOBALS['user']->email
@@ -122,10 +123,41 @@ class IndexController extends StudipController {
                 ));
 
                 $response = Moodle\REST::post('core_user_create_users', $data);
+
+                // create entry in moodle_connect_users
+                $connected_user = new Moodle\ConnectUsers();
+                $connected_user->user_id = $GLOBALS['user']->id;
+                $connected_user->moodle_password = $pw;
+                $connected_user->store();
+            } else {
+                // load users credentials from DB
+                $connected_user = Moodle\ConnectUsers::findOneByUser_id($GLOBALS['user']->id);
+
+                if (!$connected_user) {
+                    throw new Exception('User exists in moodle, but no stored password to connect is found!');
+                }
             }
 
+            $moodle_user = $users['users'][0];
+
+            // check if user is already listed in moodle-course
+            $response = Moodle\REST::post('core_user_get_course_user_profiles', array(
+                'userlist' => array(
+                    array(
+                        'userid'   => $moodle_user['id'],
+                        'courseid' => $connected_course->moodle_id
+                    )
+                )
+            ));
+
+
+            echo '<pre>';
+            print_r($response);die;
+                // if not, add user to moodle-course and assign correct role
+
+
             // redirect to moodle
-            // $connected_course->moodle_id
+                // $connected_course->moodle_id
         }
 
         var_dump($users);
@@ -134,12 +166,12 @@ class IndexController extends StudipController {
 
     public function create_action()
     {
-        $moodle = Moodle\Connect::findOneByRange_Id($this->course_id);
+        $moodle = Moodle\ConnectCourses::findOneByCourse_Id($this->course_id);
 
         if (!$moodle) {
             $data = array('courses' => array(
                 array(
-                    'fullname' => $this->course->veranstaltungsnummer .': '. $this->course->name,
+                    'fullname' => $this->course->getFullname('number-name-semester'),
                     'shortname' => md5(uniqid()),
                     'categoryid' => 1
                 )

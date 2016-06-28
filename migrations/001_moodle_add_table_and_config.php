@@ -35,15 +35,24 @@ class MoodleAddTableAndConfig extends Migration
 
 
         // add db-table
-        $db->exec("CREATE TABLE IF NOT EXISTS `moodle_connect` (
+        $db->exec("CREATE TABLE IF NOT EXISTS `moodle_connect_courses` (
             `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            `type` enum('course','user') NOT NULL,
-            `range_id` varchar(32) NOT NULL,
+            `course_id` varchar(32) NOT NULL,
             `moodle_id` int NOT NULL
         )");
 
-        $db->exec("ALTER TABLE `moodle_connect`
-            ADD UNIQUE `range_id_moodle_id` (`range_id`, `moodle_id`)");
+        $db->exec("ALTER TABLE `moodle_connect_courses`
+            ADD UNIQUE `course_id_moodle_id` (`course_id`, `moodle_id`)");
+
+
+        $db->exec("CREATE TABLE IF NOT EXISTS `moodle_connect_users` (
+            `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            `user_id` varchar(32) NOT NULL,
+            `moodle_password` varchar(32) NOT NULL
+        )");
+
+        $db->exec("ALTER TABLE `moodle_connect_users`
+            ADD UNIQUE `user_id` (`user_id`)");
 
         SimpleORMap::expireTableScheme();
     }
@@ -55,7 +64,8 @@ class MoodleAddTableAndConfig extends Migration
         $db->exec("DELETE FROM `config` WHERE `field` = 'MOODLE_API_URI'");
         $db->exec("DELETE FROM `config` WHERE `field` = 'MOODLE_API_TOKEN'");
 
-        $db->exec("DROP TABLE moodle_connect");
+        $db->exec("DROP TABLE moodle_connect_users");
+        $db->exec("DROP TABLE moodle_connect_courses");
 
         SimpleORMap::expireTableScheme();
     }
