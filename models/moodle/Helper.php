@@ -62,7 +62,6 @@ class Helper
      */
     public static function enroleUserInCourse($user_id, $course_id, $role)
     {
-        // TODO: add user to course
         $role_id = self::getIdForRole($role);
 
         $response = REST::post('enrol_manual_enrol_users', array('enrolments' => array(
@@ -72,20 +71,6 @@ class Helper
                 'courseid' => (int)$course_id
             )
         )));
-    }
-
-    /**
-     * Add passed moodle-user to passed moodle-course with passed moodle-role shortname
-     *
-     * @param int $user_id
-     * @param int $course_id
-     * @param string $role
-     */
-    public static function addRoleForUserInCourse($user_id, $course_id, $role)
-    {
-        $role_id = self::getIdForRole($role);
-
-        // TODO: add role for user in course
     }
 
     /**
@@ -221,7 +206,7 @@ class Helper
 
                 // if the user has not the correct role, assign it
                 if (!$user_has_role) {
-                    self::addRoleForUserInCourse($GLOBALS['user']->id, $course_id, $course_role);
+                    self::enroleUserInCourse($GLOBALS['user']->id, $course_id, $course_role);
                 }
             }
         }

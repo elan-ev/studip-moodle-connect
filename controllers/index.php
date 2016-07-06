@@ -106,6 +106,10 @@ class IndexController extends StudipController {
 
     public function create_action()
     {
+        if (!$GLOBALS['perm']->have_studip_perm($this->course_id, 'tutor')) {
+            throw new AccessDeniedException();
+        }
+
         $moodle = Moodle\ConnectCourses::findOneByCourse_Id($this->course_id);
 
         if (!$moodle) {
@@ -127,6 +131,9 @@ class IndexController extends StudipController {
 
             } else {
                 $moodle_course = array_pop($response);
+
+                $moodle_user = Moodle\Helper::getUser($this->user->username);
+                Moodle\Helper::enroleUserInCourse($moodle_user['id'], $moodle_course['id'], 'editingteacher');
 
                 PageLayout::postMessage(MessageBox::success(
                     _('Es wurde ein neuer Kurs in Moodle angelegt.')
