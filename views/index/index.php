@@ -29,11 +29,7 @@ if ($connected_course) {
     <? if ($GLOBALS['perm']->have_perm('admin')) : ?>
         <?= MessageBox::info(dgettext('moodle_connect', 'Root und Admins dürfen nicht direkt zu Moodle wechseln!')) ?>
     <? else : ?>
-        <form method="post" action="http://localhost/moodle/login/index.php">
-            <input type="hidden" name="username" value="<?= $user->username ?>">
-            <input type="hidden" name="password" value="<?= $moodle_user->moodle_password ?>">
-            <?= \Studip\Button::create(dgettext('moodle_connect', 'Zum Kurs in Moodle')) ?>
-        </form>
+        <?= $this->render_partial('index/_goto_moodle') ?>
     <? endif ?>
 <? elseif ($GLOBALS['perm']->have_studip_perm($this->course_id, 'tutor')) : ?>
     <!-- Kurse in Moodle erstellen -->

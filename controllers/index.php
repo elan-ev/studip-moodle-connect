@@ -15,6 +15,8 @@ class IndexController extends StudipController {
         Moodle\REST::setServiceURI(Config::getInstance()->MOODLE_API_URI);
         Moodle\REST::setToken(Config::getInstance()->MOODLE_API_TOKEN);
 
+        $this->moodle_uri = Config::getInstance()->MOODLE_API_URI;
+
         $this->course_id = Request::get('cid');
         $this->course    = Course::find($this->course_id);
         $this->user      = $GLOBALS['user'];
