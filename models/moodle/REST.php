@@ -27,7 +27,7 @@ class REST
         $curl_response = curl_exec($curl);
         curl_close($curl);
 
-        return \studip_utf8decode(json_decode($curl_response, true));
+        return self::except(\studip_utf8decode(json_decode($curl_response, true)), $function);
     }
 
 
@@ -43,30 +43,26 @@ class REST
         $curl_response = curl_exec($curl);
         curl_close($curl);
 
-        return \studip_utf8decode(json_decode($curl_response, true));
+        return self::except(\studip_utf8decode(json_decode($curl_response, true)), $function);
     }
 
     /**
-     * Generate a cryptographically secure password with at least one of each of
-     * uppercase/lowercase letters, numbers and symbols.
+     * Throws an exception if an API response contains an exception, returns the
+     * response if none is found
      *
-     * @return string  the generated password
+     * @param mixed $response  the response-array from the api-call
+     * @param string $api_route  the route whoch was tried to call
+     *
+     * @return mixed $response
+     *
+     * @throws Moodle\APIException
      */
-    public static function createPassword()
+    public static function except($response, $api_route)
     {
-        do {
-            $bytes = openssl_random_pseudo_bytes(32, $strong);
+        if ($response['exception']) {
+            throw new APIException($response, $api_route);
+        }
 
-            if (false !== $bytes && true === $strong) {
-                $pw = substr(base64_encode($bytes), 0, 32);
-            } else {
-                throw new \Exception("Unable to generate secure token from OpenSSL.");
-            }
-
-        // make sure that at least one of each of the following chars is present:
-        // uppercase letter, lowercase letter, number, symbol
-        } while (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/', $pw));
-
-        return $pw;
+        return $response;
     }
 }

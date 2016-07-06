@@ -2,8 +2,8 @@
 $info = new ListWidget();
 $info->setTitle(_('Informationen'));
 $info->addElement(new InfoboxElement($connected_course
-    ? sprintf(_('Veranstaltung ist mit dem Kurs "%s" in Moodle verknüpft.'), $connected_course['fullname'])
-    : _('Veranstaltung ist bisher mit keinem Kurs in Moodle verknüpft.'),
+    ? sprintf(dgettext('moodle_connect', 'Veranstaltung ist mit dem Kurs "%s" in Moodle verknüpft.'), $connected_course['fullname'])
+    : dgettext('moodle_connect', 'Veranstaltung ist bisher mit keinem Kurs in Moodle verknüpft.'),
     Icon::create('exclaim', 'info')
 ));
 
@@ -14,7 +14,7 @@ if ($connected_course) {
     $actions->setTitle(_('Aktionen'));
 
     $actions->addLink(
-        'Kursverküpfung aufheben',
+        dgettext('moodle_connect', 'Kursverküpfung aufheben'),
         $controller->url_for('index/disconnect/' . $moodle->moodle_id),
         Icon::create('link-intern', 'clickable')
     );
@@ -26,7 +26,15 @@ if ($connected_course) {
 
 <? if ($connected_course) : ?>
     <!-- Zum Kurs in Moodle (new tab) -->
-    <?= \Studip\LinkButton::create(_('Zum Kurs in Moodle'), $controller->url_for('index/goto')) ?>
+    <? if ($GLOBALS['perm']->have_perm('admin')) : ?>
+        <?= MessageBox::info(dgettext('moodle_connect', 'Root und Admins dürfen nicht direkt zu Moodle wechseln!')) ?>
+    <? else : ?>
+        <form method="post" action="http://localhost/moodle/login/index.php">
+            <input type="hidden" name="username" value="<?= $user->username ?>">
+            <input type="hidden" name="password" value="<?= $moodle_user->moodle_password ?>">
+            <?= \Studip\Button::create(dgettext('moodle_connect', 'Zum Kurs in Moodle')) ?>
+        </form>
+    <? endif ?>
 <? elseif ($GLOBALS['perm']->have_studip_perm($this->course_id, 'tutor')) : ?>
     <!-- Kurse in Moodle erstellen -->
     <? if (!empty($moodle_courses)) : ?>
@@ -34,7 +42,7 @@ if ($connected_course) {
     <? endif ?>
 
     <h2>Kurs in Moodle anlegen</h2>
-    <?= \Studip\LinkButton::create(_('Neuen Kurs in Moodle erstellen'), $controller->url_for('index/create')) ?>
+    <?= \Studip\LinkButton::create(dgettext('moodle_connect', 'Neuen Kurs in Moodle erstellen'), $controller->url_for('index/create')) ?>
 <? else : ?>
-    <?= MessageBox::info(_('Es wurde noch kein Moodle-Kurs mit dieser Veranstaltung verknüpft.')) ?>
+    <?= MessageBox::info(dgettext('moodle_connect', 'Es wurde noch kein Moodle-Kurs mit dieser Veranstaltung verknüpft.')) ?>
 <? endif ?>

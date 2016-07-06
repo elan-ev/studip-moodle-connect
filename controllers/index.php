@@ -16,7 +16,8 @@ class IndexController extends StudipController {
         Moodle\REST::setToken(Config::getInstance()->MOODLE_API_TOKEN);
 
         $this->course_id = Request::get('cid');
-        $this->course = Course::find($this->course_id);
+        $this->course    = Course::find($this->course_id);
+        $this->user      = $GLOBALS['user'];
 
         PageLayout::setTitle($this->course->getFullname()." - " ._("Moodle"));
     }
@@ -34,6 +35,16 @@ class IndexController extends StudipController {
                     )
                 )
             )));
+
+            // create user account and add user too moodle-course (if necessary)
+            try {
+                $this->moodle_user = Moodle\Helper::checkPrerequisites($this->user, $this->course_id);
+            } catch (Moodle\APIException $e) {
+                PageLayout::postMessage(MessageBox::error(dgettext(
+                    'moodle_connect',
+                    'Fehler beim prüfen der Voraussetzungen zur Weiterleitung nach Moodle'
+                )) .' ('. $e->getMessage() .')');
+            }
         } else {
             $this->moodle_courses = Moodle\REST::get('core_course_get_courses');
         }
@@ -89,79 +100,6 @@ class IndexController extends StudipController {
         ));
 
         $this->redirect('index');
-    }
-
-    public function goto_action()
-    {
-        if (!$GLOBALS['perm']->have_studip_perm($this->course_id, 'autor')) {
-            throw new AccessDeniedException();
-        }
-
-        // get connected course
-        $connected_course = Moodle\ConnectCourses::findOneByCourse_id($this->course_id);
-
-        if ($connected_course) {
-            // check if the current user already exists in Moodle
-            $users = Moodle\REST::post('core_user_get_users', array(
-                'criteria' => array(
-                    array ('key' => 'username', 'value' => $GLOBALS['user']->username)
-                )
-            ));
-
-            // if user does not exists in moodle, create it
-            if (empty($users['users'])) {
-                $pw = Moodle\REST::createPassword();
-
-                $data = array('users' => array(
-                    array(
-                        'username'  => $GLOBALS['user']->username,
-                        'password'  => $pw,
-                        'firstname' => $GLOBALS['user']->vorname,
-                        'lastname'  => $GLOBALS['user']->nachname,
-                        'email'     => $GLOBALS['user']->email
-                    )
-                ));
-
-                $response = Moodle\REST::post('core_user_create_users', $data);
-
-                // create entry in moodle_connect_users
-                $connected_user = new Moodle\ConnectUsers();
-                $connected_user->user_id = $GLOBALS['user']->id;
-                $connected_user->moodle_password = $pw;
-                $connected_user->store();
-            } else {
-                // load users credentials from DB
-                $connected_user = Moodle\ConnectUsers::findOneByUser_id($GLOBALS['user']->id);
-
-                if (!$connected_user) {
-                    throw new Exception('User exists in moodle, but no stored password to connect is found!');
-                }
-            }
-
-            $moodle_user = $users['users'][0];
-
-            // check if user is already listed in moodle-course
-            $response = Moodle\REST::post('core_user_get_course_user_profiles', array(
-                'userlist' => array(
-                    array(
-                        'userid'   => $moodle_user['id'],
-                        'courseid' => $connected_course->moodle_id
-                    )
-                )
-            ));
-
-
-            echo '<pre>';
-            print_r($response);die;
-                // if not, add user to moodle-course and assign correct role
-
-
-            // redirect to moodle
-                // $connected_course->moodle_id
-        }
-
-        var_dump($users);
-        var_dump($data, $response);die;
     }
 
     public function create_action()

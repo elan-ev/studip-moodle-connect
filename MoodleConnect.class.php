@@ -10,10 +10,6 @@ require 'bootstrap.php';
  * @version 0.1a
  */
 
-require_once('models/REST.php');
-require_once('models/ConnectCourses.php');
-require_once('models/ConnectUsers.php');
-
 class MoodleConnect extends StudIPPlugin implements StandardPlugin
 {
 
