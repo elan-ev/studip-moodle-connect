@@ -229,4 +229,32 @@ class Helper
         return $connected_user ?: ConnectUsers::findOneByUser_id($studip_user->id);
     }
 
+    /**
+     * Return courses the passed user is enroled for as editingteacher
+     *
+     * @param string $username
+     *
+     * @return array  moodle-courses
+     */
+    public static function getCoursesForUser($username)
+    {
+        $moodle_user = self::getUser($username);
+
+        $role_id = self::getIdForRole('editingteacher');
+        $courses = array();
+
+        foreach(REST::post('core_enrol_get_users_courses', array(
+            'userid' => $moodle_user['id']
+        )) as $course) {
+            $user_course = self::getUserInCourse($username, $course['id']);
+
+            foreach ($user_course['roles'] as $role) {
+                if ($role['roleid'] == $role_id) {
+                    $courses[] = $course;
+                }
+            }
+        }
+
+        return $courses;
+    }
 }

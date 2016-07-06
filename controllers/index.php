@@ -48,7 +48,7 @@ class IndexController extends StudipController {
                 )) .' ('. $e->getMessage() .')');
             }
         } else {
-            $this->moodle_courses = Moodle\REST::get('core_course_get_courses');
+            $this->moodle_courses = Moodle\Helper::getCoursesForUser($this->user->username);
         }
     }
 
