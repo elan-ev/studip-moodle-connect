@@ -17,9 +17,10 @@ class IndexController extends StudipController {
 
         $this->moodle_uri = Config::getInstance()->MOODLE_API_URI;
 
-        $this->course_id = Request::get('cid');
-        $this->course    = Course::find($this->course_id);
-        $this->user      = $GLOBALS['user'];
+        $this->course_id       = Request::get('cid');
+        $this->course          = Course::find($this->course_id);
+        $this->user            = $GLOBALS['user'];
+        $this->elevated_rights = $GLOBALS['perm']->have_studip_perm('tutor', $this->course_id);
 
         PageLayout::setTitle($this->course->getFullname()." - " ._("Moodle"));
     }
@@ -47,7 +48,7 @@ class IndexController extends StudipController {
                     'Fehler beim prüfen der Voraussetzungen zur Weiterleitung nach Moodle'
                 )) .' ('. $e->getMessage() .')');
             }
-        } else {
+        } else if ($this->elevated_rights) {
             $this->moodle_courses = Moodle\Helper::getCoursesForUser($this->user->username);
         }
     }
@@ -56,7 +57,7 @@ class IndexController extends StudipController {
     {
         CSRFProtection::verifySecurityToken();
 
-        if (!$GLOBALS['perm']->have_studip_perm($this->course_id, 'tutor')) {
+        if (!$this->elevated_rights) {
             throw new AccessDeniedException();
         }
 
@@ -81,7 +82,7 @@ class IndexController extends StudipController {
     {
         CSRFProtection::verifySecurityToken();
 
-        if (!$GLOBALS['perm']->have_studip_perm($this->course_id, 'tutor')) {
+        if (!$this->elevated_rights) {
             throw new AccessDeniedException();
         }
 
@@ -106,7 +107,7 @@ class IndexController extends StudipController {
 
     public function create_action()
     {
-        if (!$GLOBALS['perm']->have_studip_perm($this->course_id, 'tutor')) {
+        if (!$this->elevated_rights) {
             throw new AccessDeniedException();
         }
 

@@ -143,7 +143,7 @@ class Helper
     public static function checkPrerequisites($studip_user, $course_id)
     {
         // get connected course
-        $connected_course = ConnectCourses::findOneByCourse_id(course_id);
+        $connected_course = ConnectCourses::findOneByCourse_id($course_id);
 
         if ($connected_course) {
             // check if the current user already exists in Moodle and create it if necessary
@@ -177,7 +177,7 @@ class Helper
                 $connected_user = ConnectUsers::findOneByUser_id($studip_user->id);
 
                 if (!$connected_user) {
-                    throw new Exception('User exists in moodle, but no stored password to connect is found!');
+                    throw new \Exception('User exists in moodle, but no stored password to connect is found!');
                 }
             }
 
@@ -192,7 +192,7 @@ class Helper
                 $course_user = self::getUserInCourse($moodle_user['id'], $connected_course->moodle_id);
 
                 if (!$course_user) {
-                    throw new Exception('Could not enrole user in moodle-course!');
+                    throw new \Exception('Could not enrole user in moodle-course!');
                 }
             } else {
                 // user is in course, check if he has the correct role in the course
@@ -228,14 +228,16 @@ class Helper
         $role_id = self::getIdForRole('editingteacher');
         $courses = array();
 
-        foreach(REST::post('core_enrol_get_users_courses', array(
-            'userid' => $moodle_user['id']
-        )) as $course) {
-            $user_course = self::getUserInCourse($username, $course['id']);
+        if ($moodle_user) {
+            foreach(REST::post('core_enrol_get_users_courses', array(
+                'userid' => $moodle_user['id']
+            )) as $course) {
+                $user_course = self::getUserInCourse($username, $course['id']);
 
-            foreach ($user_course['roles'] as $role) {
-                if ($role['roleid'] == $role_id) {
-                    $courses[] = $course;
+                foreach ($user_course['roles'] as $role) {
+                    if ($role['roleid'] == $role_id) {
+                        $courses[] = $course;
+                    }
                 }
             }
         }

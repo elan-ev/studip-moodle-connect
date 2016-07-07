@@ -9,7 +9,7 @@ $info->addElement(new InfoboxElement($connected_course
 
 Sidebar::get()->addWidget($info);
 
-if ($connected_course) {
+if ($connected_course && $elevated_rights) {
     $actions = new ActionsWidget();
     $actions->setTitle(_('Aktionen'));
 
@@ -31,7 +31,7 @@ if ($connected_course) {
     <? else : ?>
         <?= $this->render_partial('index/_goto_moodle') ?>
     <? endif ?>
-<? elseif ($GLOBALS['perm']->have_studip_perm($this->course_id, 'tutor')) : ?>
+<? elseif ($elevated_rights) : ?>
     <!-- Kurse in Moodle erstellen -->
     <? if (!empty($moodle_courses)) : ?>
         <?= $this->render_partial('index/_connect_course') ?>
