@@ -119,7 +119,7 @@ class IndexController extends StudipController {
         if (!$moodle) {
             $data = array('courses' => array(
                 array(
-                    'fullname' => $this->course->getFullname('number-name-semester'),
+                    'fullname' => studip_utf8encode($this->course->getFullname('number-name-semester')),
                     'shortname' => md5(uniqid()),
                     'categoryid' => 1
                 )
