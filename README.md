@@ -7,6 +7,8 @@ Um den Konnektor zu verwenden, müssen einige Einstellungen in Moodle vorgenomme
 
 Melden Sie sich als Admin in Ihrer Moodle-Installation an.
 
+Gehen Sie zu "Website-Administration" -> "Plugins" -> "Webservices" -> "Übersicht" und erledigen Sie zumindest die beiden ersten Schritte "Webservices aktivieren" und "Protokolle aktivieren". Diese Plugin verwendet das "Protokoll REST".
+
 ### Benötigte Methoden der Moodle-API freigeben
 
 Gehen Sie zu "Website-Administration" -> "Plugins" -> "Webservices" -> "Externe Services". Legen Sie dort mittels "hinzufügen" einen neuen Externen Service an. Die Benennung bleibt Ihnen überlassen. Außerdem können Sie nach Bedarf weitere Einstellungen vornehmen.
