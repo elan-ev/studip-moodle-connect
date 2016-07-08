@@ -23,12 +23,15 @@ class IndexController extends StudipController {
         $this->elevated_rights = $GLOBALS['perm']->have_studip_perm('tutor', $this->course_id);
 
         PageLayout::setTitle($this->course->getFullname()." - " ._("Moodle"));
+
+        // $this->set_layout('layouts/base');
+        $this->set_layout($GLOBALS['template_factory']->open('layouts/base'));
     }
 
     public function index_action()
     {
         SimpleORMap::expireTableScheme();
-        $this->moodle = Moodle\ConnectCourses::findOneByCourse_Id($this->course_id);
+        $this->moodle = array_pop(Moodle\ConnectCourses::findByCourse_Id($this->course_id));
 
         if ($this->moodle) {
             $this->connected_course = array_pop(Moodle\REST::post('core_course_get_courses', array(
@@ -46,7 +49,7 @@ class IndexController extends StudipController {
                 PageLayout::postMessage(MessageBox::error(dgettext(
                     'moodle_connect',
                     'Fehler beim prüfen der Voraussetzungen zur Weiterleitung nach Moodle'
-                )) .' ('. $e->getMessage() .')');
+                ) .' ('. $e->getMessage() .')'));
             }
         } else if ($this->elevated_rights) {
             $this->moodle_courses = Moodle\Helper::getCoursesForUser($this->user->username);
@@ -90,7 +93,7 @@ class IndexController extends StudipController {
             throw new InvalidArgumentException('No course id given while trying to disconnect to moodle course');
         }
 
-        if ($connect = Moodle\ConnectCourses::findOneByCourse_id($this->course_id)) {
+        if ($connect = array_pop(Moodle\ConnectCourses::findByCourse_id($this->course_id))) {
             if ($connect->moodle_id == $moodle_id) {
                 $connect->delete();
             }
@@ -111,7 +114,7 @@ class IndexController extends StudipController {
             throw new AccessDeniedException();
         }
 
-        $moodle = Moodle\ConnectCourses::findOneByCourse_Id($this->course_id);
+        $moodle = array_pop(Moodle\ConnectCourses::findByCourse_Id($this->course_id));
 
         if (!$moodle) {
             $data = array('courses' => array(
@@ -133,8 +136,10 @@ class IndexController extends StudipController {
             } else {
                 $moodle_course = array_pop($response);
 
+                /*
                 $moodle_user = Moodle\Helper::getUser($this->user->username);
                 Moodle\Helper::enroleUserInCourse($moodle_user['id'], $moodle_course['id'], 'editingteacher');
+                */
 
                 PageLayout::postMessage(MessageBox::success(
                     _('Es wurde ein neuer Kurs in Moodle angelegt.')

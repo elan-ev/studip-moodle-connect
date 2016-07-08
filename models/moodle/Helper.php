@@ -142,8 +142,12 @@ class Helper
 
     public static function checkPrerequisites($studip_user, $course_id)
     {
+        if ($GLOBALS['perm']->have_perm('admin', $studip_user->user_id)) {
+            return false;
+        }
+
         // get connected course
-        $connected_course = ConnectCourses::findOneByCourse_id($course_id);
+        $connected_course = array_pop(ConnectCourses::findByCourse_id($course_id));
 
         if ($connected_course) {
             // check if the current user already exists in Moodle and create it if necessary
@@ -163,7 +167,7 @@ class Helper
                 REST::post('core_user_create_users', $data);
 
                 // create entry in moodle_connect_users
-                if (!$connected_user = ConnectUsers::findOneByUser_id($studip_user->id)) {
+                if (!$connected_user = array_pop(ConnectUsers::findByUser_id($studip_user->id))) {
                     $connected_user = new ConnectUsers();
                     $connected_user->user_id = $GLOBALS['user']->id;
                 }
@@ -174,7 +178,7 @@ class Helper
 
             } else {
                 // load users credentials from DB
-                $connected_user = ConnectUsers::findOneByUser_id($studip_user->id);
+                $connected_user = array_pop(ConnectUsers::findByUser_id($studip_user->id));
 
                 if (!$connected_user) {
                     throw new \Exception('User exists in moodle, but no stored password to connect is found!');
@@ -206,12 +210,12 @@ class Helper
 
                 // if the user has not the correct role, assign it
                 if (!$user_has_role) {
-                    self::enroleUserInCourse($GLOBALS['user']->id, $course_id, $course_role);
+                    self::enroleUserInCourse($moodle_user['id'], $course_id, $course_role);
                 }
             }
         }
 
-        return $connected_user ?: ConnectUsers::findOneByUser_id($studip_user->id);
+        return $connected_user ?: array_pop(ConnectUsers::findByUser_id($studip_user->id));
     }
 
     /**

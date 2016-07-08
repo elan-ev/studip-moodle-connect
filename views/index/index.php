@@ -4,7 +4,7 @@ $info->setTitle(_('Informationen'));
 $info->addElement(new InfoboxElement($connected_course
     ? sprintf(dgettext('moodle_connect', 'Veranstaltung ist mit dem Kurs "%s" in Moodle verknüpft.'), $connected_course['fullname'])
     : dgettext('moodle_connect', 'Veranstaltung ist bisher mit keinem Kurs in Moodle verknüpft.'),
-    Icon::create('exclaim', 'info')
+    (class_exists('Icon') ? Icon::create('exclaim', 'info') : 'icons/16/black/exclaim')
 ));
 
 Sidebar::get()->addWidget($info);
@@ -16,7 +16,7 @@ if ($connected_course && $elevated_rights) {
     $actions->addLink(
         dgettext('moodle_connect', 'Kursverküpfung aufheben'),
         $controller->url_for('index/disconnect/' . $moodle->moodle_id),
-        Icon::create('link-intern', 'clickable')
+        (class_exists('Icon') ? Icon::create('link-intern', 'clickable') : 'icons/16/blue/link-intern')
     );
 
     Sidebar::get()->addWidget($actions);
