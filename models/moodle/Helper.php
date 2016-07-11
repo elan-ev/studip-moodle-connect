@@ -14,7 +14,7 @@ class Helper
     {
         $users = REST::post('core_user_get_users', array(
             'criteria' => array(
-                array ('key' => 'username', 'value' => $username)
+                array ('key' => 'username', 'value' => strtolower($username))
             )
         ));
 
@@ -42,7 +42,7 @@ class Helper
 
         $user_in_course = false;
         foreach ($response as $m_user) {
-            if ($m_user['username'] == $username) {
+            if ($m_user['username'] == strtolower($username)) {
                 $user_in_course = $m_user;
                 break;
             }
@@ -151,19 +151,19 @@ class Helper
 
         if ($connected_course) {
             // check if the current user already exists in Moodle and create it if necessary
-            if (!$moodle_user = self::getUser($studip_user->username)) {
+            if (!$moodle_user = self::getUser(strtolower($studip_user->username))) {
                 $pw = self::createPassword();
 
                 $data = array('users' => array(
                     array(
-                        'username'  => $studip_user->username,
+                        'username'  => strtolower($studip_user->username),
                         'password'  => $pw,
                         'firstname' => $studip_user->vorname,
                         'lastname'  => $studip_user->nachname,
                         'email'     => $studip_user->email
                     )
                 ));
-
+                   var_dump($data);
                 REST::post('core_user_create_users', $data);
 
                 // create entry in moodle_connect_users
@@ -174,7 +174,7 @@ class Helper
                 $connected_user->moodle_password = $pw;
                 $connected_user->store();
 
-                $moodle_user = self::getUser($studip_user->username);
+                $moodle_user = self::getUser(strtolower($studip_user->username));
 
             } else {
                 // load users credentials from DB
@@ -188,7 +188,7 @@ class Helper
             $course_role = self::getTranslatedRole($studip_user->id, $course_id);
 
             // check if user is already enroled in moodle-course
-            $course_user = self::getUserInCourse($studip_user->username, $connected_course->moodle_id);
+            $course_user = self::getUserInCourse(strtolower($studip_user->username), $connected_course->moodle_id);
 
             // enrole user for moodle-course, if necessary
             if (!$course_user) {
