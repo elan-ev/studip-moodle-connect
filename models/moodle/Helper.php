@@ -163,7 +163,7 @@ class Helper
                         'email'     => $studip_user->email
                     )
                 ));
-                   var_dump($data);
+
                 REST::post('core_user_create_users', $data);
 
                 // create entry in moodle_connect_users
