@@ -12,10 +12,12 @@ class IndexController extends StudipController {
     {
         parent::before_filter($action, $args);
 
-        Moodle\REST::setServiceURI(Config::getInstance()->MOODLE_API_URI);
-        Moodle\REST::setToken(Config::getInstance()->MOODLE_API_TOKEN);
-
         $this->moodle_uri = Config::getInstance()->MOODLE_API_URI;
+
+        if ($this->moodle_uri) {
+            Moodle\REST::setServiceURI($this->moodle_uri);
+            Moodle\REST::setToken(Config::getInstance()->MOODLE_API_TOKEN);
+        }
 
         $this->course_id       = Request::get('cid');
         $this->course          = Course::find($this->course_id);
@@ -33,26 +35,41 @@ class IndexController extends StudipController {
         SimpleORMap::expireTableScheme();
         $this->moodle = array_pop(Moodle\ConnectCourses::findByCourse_Id($this->course_id));
 
-        if ($this->moodle) {
-            $this->connected_course = array_pop(Moodle\REST::post('core_course_get_courses', array(
-                options => array(
-                    'ids' => array(
-                        $this->moodle->moodle_id
-                    )
-                )
-            )));
 
-            // create user account and add user too moodle-course (if necessary)
-            try {
-                $this->moodle_user = Moodle\Helper::checkPrerequisites($this->user, $this->course_id);
-            } catch (Moodle\APIException $e) {
-                PageLayout::postMessage(MessageBox::error(dgettext(
-                    'moodle_connect',
-                    'Fehler beim prüfen der Voraussetzungen zur Weiterleitung nach Moodle'
-                ) .' ('. $e->getMessage() .')'));
+        $this->unconfigured = false;
+
+        try {
+            if ($this->moodle) {
+                $this->connected_course = array_pop(Moodle\REST::post('core_course_get_courses', array(
+                    options => array(
+                        'ids' => array(
+                            $this->moodle->moodle_id
+                        )
+                    )
+                )));
+
+                // create user account and add user too moodle-course (if necessary)
+                try {
+                    $this->moodle_user = Moodle\Helper::checkPrerequisites($this->user, $this->course_id);
+                } catch (Moodle\APIException $e) {
+                    PageLayout::postMessage(MessageBox::error(dgettext(
+                        'moodle_connect',
+                        'Fehler beim prüfen der Voraussetzungen zur Weiterleitung nach Moodle'
+                    ) .' ('. $e->getMessage() .')'));
+                } catch (Moodle\UnconfiguredException $e) {
+
+                }
+            } else if ($this->elevated_rights) {
+                $this->moodle_courses = Moodle\Helper::getCoursesForUser($this->user->username);
             }
-        } else if ($this->elevated_rights) {
-            $this->moodle_courses = Moodle\Helper::getCoursesForUser($this->user->username);
+
+        } catch (Moodle\UnconfiguredException $e) {
+            PageLayout::postMessage(MessageBox::error(
+                _('Die Moodle-Schnittstelle wurde noch nicht konfiguriert! '
+                    . 'Wenden Sie sich bitte an einen Systemadministrator.')
+            ));
+
+            $this->unconfigured = true;
         }
     }
 

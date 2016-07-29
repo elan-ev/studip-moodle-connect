@@ -17,8 +17,17 @@ class REST
         self::$token = $token;
     }
 
+    public static function checkConfig()
+    {
+        if (!self::$uri || !self::$token) {
+            throw new UnconfiguredException('Moodle connector is not configured!');
+        }
+    }
+
     public static function get($function)
     {
+        self::checkConfig();
+
         $curl = curl_init(self::$uri .'/webservice/rest/server.php?wstoken=' .
             self::$token . '&wsfunction=' . $function . '&moodlewsrestformat=json');
 
@@ -33,6 +42,8 @@ class REST
 
     public static function post($function, $data)
     {
+        self::checkConfig();
+
         $curl = curl_init(self::$uri .'/webservice/rest/server.php?wstoken=' .
             self::$token . '&wsfunction=' . $function . '&moodlewsrestformat=json');
 
