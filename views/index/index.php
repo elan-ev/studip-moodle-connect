@@ -30,7 +30,9 @@ if ($connected_course && $elevated_rights && !$unconfigured) {
         <? if ($GLOBALS['perm']->have_perm('admin')) : ?>
             <?= MessageBox::info(dgettext('moodle_connect', 'Root und Admins dürfen nicht direkt zu Moodle wechseln!')) ?>
         <? else : ?>
-            <?= $this->render_partial('index/_goto_moodle') ?>
+            <? if ($moodle_user) : ?>
+                <?= $this->render_partial('index/_goto_moodle') ?>
+            <? endif ?>
         <? endif ?>
     <? elseif ($elevated_rights) : ?>
         <!-- Kurse in Moodle erstellen -->

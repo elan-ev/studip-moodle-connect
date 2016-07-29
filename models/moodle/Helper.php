@@ -26,6 +26,28 @@ class Helper
     }
 
     /**
+     * Get moodle user-data for passed mail address
+     *
+     * @param string  $mail
+     *
+     * @return mixed  moodle user-data or false, if user does not exist in moodle
+     */
+    public static function getUserByMail($mail)
+    {
+        $users = REST::post('core_user_get_users', array(
+            'criteria' => array(
+                array ('key' => 'email', 'value' => $mail)
+            )
+        ));
+
+        if (empty($users['users'])) {
+            return false;
+        }
+
+        return $users['users'][0];
+    }
+
+    /**
      * Return to user-data for the passed user in the passed course.
      * Returns false, if the user is not enroled in the passed course
      *
@@ -150,6 +172,17 @@ class Helper
         $connected_course = array_pop(ConnectCourses::findByCourse_id($course_id));
 
         if ($connected_course) {
+            // check if a user with the currents user e-mail-address already exists
+            if (self::getUserByMail($studip_user->email)) {
+                // TODO: messages should not be posted here
+                \PageLayout::postMessage(\MessageBox::error(sprintf(
+                    _('Es gibt bereits einen Nutzer in Moodle mit dieser Mail-Adresse! (%s)'),
+                    $studip_user->email
+                )));
+
+                return false;
+            }
+
             // check if the current user already exists in Moodle and create it if necessary
             if (!$moodle_user = self::getUser(strtolower($studip_user->username))) {
                 $pw = self::createPassword();
