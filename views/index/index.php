@@ -24,7 +24,7 @@ if ($connected_course && $elevated_rights && !$unconfigured) {
 
 ?>
 
-<? if (!§unconfigured) : ?>
+<? if (!$unconfigured) : ?>
     <? if ($connected_course) : ?>
         <!-- Zum Kurs in Moodle (new tab) -->
         <? if ($GLOBALS['perm']->have_perm('admin')) : ?>
