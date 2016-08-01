@@ -134,38 +134,28 @@ class IndexController extends StudipController {
         $moodle = array_pop(Moodle\ConnectCourses::findByCourse_Id($this->course_id));
 
         if (!$moodle) {
+            // TODO: for the time being, use the first available category
+            $category = reset(Moodle\REST::get('core_course_get_categories'));
+
             $data = array('courses' => array(
                 array(
                     'fullname' => studip_utf8encode($this->course->getFullname('number-name-semester')),
                     'shortname' => md5(uniqid()),
-                    'categoryid' => 1
+                    'categoryid' => $category['id']
                 )
             ));
 
             $response = Moodle\REST::post('core_course_create_courses', $data);
+            $moodle_course = array_pop($response);
 
-            if ($response['exception']) {
-                PageLayout::postMessage(MessageBox::error(
-                    _('Fehler beim anlegen des Kurses!'),
-                    $response
-                ));
 
-            } else {
-                $moodle_course = array_pop($response);
+            PageLayout::postMessage(MessageBox::success(
+                _('Es wurde ein neuer Kurs in Moodle angelegt.')
+            ));
 
-                /*
-                $moodle_user = Moodle\Helper::getUser($this->user->username);
-                Moodle\Helper::enroleUserInCourse($moodle_user['id'], $moodle_course['id'], 'editingteacher');
-                */
+            $this->redirect('index/connect/' . $moodle_course['id']);
 
-                PageLayout::postMessage(MessageBox::success(
-                    _('Es wurde ein neuer Kurs in Moodle angelegt.')
-                ));
-
-                $this->redirect('index/connect/' . $moodle_course['id']);
-
-                return;
-            }
+            return;
         } else {
             throw new Exception('course is already connected!');
         }

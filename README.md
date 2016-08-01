@@ -22,6 +22,7 @@ Nach Auswahl von "Service hinzufügen" kehren sie auf die Übersichtsseite zurü
 * core_course_get_courses
 * enrol_manual_enrol_users
 * core_enrol_get_users_courses
+* core_course_get_categories (0.2.1+)
 
 ### Zugriffstoken erstellen
 
