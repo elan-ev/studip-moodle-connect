@@ -172,19 +172,21 @@ class Helper
         $connected_course = array_pop(ConnectCourses::findByCourse_id($course_id));
 
         if ($connected_course) {
-            // check if a user with the currents user e-mail-address already exists
-            if (self::getUserByMail($studip_user->email)) {
-                // TODO: messages should not be posted here
-                \PageLayout::postMessage(\MessageBox::error(sprintf(
-                    _('Es gibt bereits einen Nutzer in Moodle mit dieser Mail-Adresse! (%s)'),
-                    $studip_user->email
-                )));
-
-                return false;
-            }
 
             // check if the current user already exists in Moodle and create it if necessary
             if (!$moodle_user = self::getUser(strtolower($studip_user->username))) {
+
+                // check if a user with the currents user e-mail-address already exists
+                if (self::getUserByMail($studip_user->email)) {
+                    // TODO: messages should not be posted here
+                    \PageLayout::postMessage(\MessageBox::error(sprintf(
+                        _('Es gibt bereits einen Nutzer in Moodle mit dieser Mail-Adresse! (%s)'),
+                        $studip_user->email
+                    )));
+
+                    return false;
+                }
+
                 $pw = self::createPassword();
 
                 $data = array('users' => array(
@@ -226,7 +228,7 @@ class Helper
             // enrole user for moodle-course, if necessary
             if (!$course_user) {
                 self::enroleUserInCourse($moodle_user['id'], $connected_course->moodle_id, $course_role);
-                $course_user = self::getUserInCourse($moodle_user['id'], $connected_course->moodle_id);
+                $course_user = self::getUserInCourse(strtolower($studip_user->username), $connected_course->moodle_id);
 
                 if (!$course_user) {
                     throw new \Exception('Could not enrole user in moodle-course!');
