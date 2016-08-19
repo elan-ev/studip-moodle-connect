@@ -174,7 +174,7 @@ class Helper
         if ($connected_course) {
 
             // check if the current user already exists in Moodle and create it if necessary
-            if (!$moodle_user = self::getUser(strtolower($studip_user->username))) {
+            if (!$moodle_user = self::getUser(strtolower($studip_user->email))) {
 
                 // check if a user with the currents user e-mail-address already exists
                 if (self::getUserByMail($studip_user->email)) {
@@ -191,7 +191,7 @@ class Helper
 
                 $data = array('users' => array(
                     array(
-                        'username'  => strtolower($studip_user->username),
+                        'username'  => strtolower($studip_user->email),
                         'password'  => $pw,
                         'firstname' => $studip_user->vorname,
                         'lastname'  => $studip_user->nachname,
@@ -202,18 +202,18 @@ class Helper
                 REST::post('core_user_create_users', $data);
 
                 // create entry in moodle_connect_users
-                if (!$connected_user = array_pop(ConnectUsers::findByUser_id($studip_user->id))) {
+                if (!$connected_user = array_pop(ConnectUsers::findbyEmail($studip_user->email))) {
                     $connected_user = new ConnectUsers();
                     $connected_user->user_id = $GLOBALS['user']->id;
                 }
                 $connected_user->moodle_password = $pw;
                 $connected_user->store();
 
-                $moodle_user = self::getUser(strtolower($studip_user->username));
+                $moodle_user = self::getUser(strtolower($studip_user->email));
 
             } else {
                 // load users credentials from DB
-                $connected_user = array_pop(ConnectUsers::findByUser_id($studip_user->id));
+                $connected_user = array_pop(ConnectUsers::findByEmail($studip_user->email));
 
                 if (!$connected_user) {
                     throw new \Exception('User exists in moodle, but no stored password to connect is found!');
@@ -223,12 +223,12 @@ class Helper
             $course_role = self::getTranslatedRole($studip_user->id, $course_id);
 
             // check if user is already enroled in moodle-course
-            $course_user = self::getUserInCourse(strtolower($studip_user->username), $connected_course->moodle_id);
+            $course_user = self::getUserInCourse(strtolower($studip_user->email), $connected_course->moodle_id);
 
             // enrole user for moodle-course, if necessary
             if (!$course_user) {
                 self::enroleUserInCourse($moodle_user['id'], $connected_course->moodle_id, $course_role);
-                $course_user = self::getUserInCourse(strtolower($studip_user->username), $connected_course->moodle_id);
+                $course_user = self::getUserInCourse(strtolower($studip_user->email), $connected_course->moodle_id);
 
                 if (!$course_user) {
                     throw new \Exception('Could not enrole user in moodle-course!');

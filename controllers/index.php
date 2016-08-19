@@ -60,7 +60,7 @@ class IndexController extends StudipController {
 
                 }
             } else if ($this->elevated_rights) {
-                $this->moodle_courses = Moodle\Helper::getCoursesForUser($this->user->username);
+                $this->moodle_courses = Moodle\Helper::getCoursesForUser($this->user->email);
             }
 
         } catch (Moodle\UnconfiguredException $e) {
