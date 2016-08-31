@@ -204,7 +204,7 @@ class Helper
                 // create entry in moodle_connect_users
                 if (!$connected_user = array_pop(ConnectUsers::findbyEmail($studip_user->email))) {
                     $connected_user = new ConnectUsers();
-                    $connected_user->user_id = $GLOBALS['user']->id;
+                    $connected_user->email = $studip_user->email;
                 }
                 $connected_user->moodle_password = $pw;
                 $connected_user->store();

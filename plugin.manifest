@@ -1,6 +1,6 @@
 pluginname=MoodleConnect
 pluginclassname=MoodleConnect
 origin=elan-ev
-version=0.2.3
+version=0.2.4
 studipMinVersion=3.1
 studipMaxVersion=3.5.99
