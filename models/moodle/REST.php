@@ -32,6 +32,7 @@ class REST
             self::$token . '&wsfunction=' . $function . '&moodlewsrestformat=json');
 
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);                       // follow redirects (fe http to https)
 
         $curl_response = curl_exec($curl);
         curl_close($curl);
@@ -50,6 +51,7 @@ class REST
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, \studip_utf8encode(http_build_query($data)));
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);                       // follow redirects (fe http to https)
 
         $curl_response = curl_exec($curl);
         curl_close($curl);
