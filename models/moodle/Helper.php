@@ -250,7 +250,7 @@ class Helper
             }
         }
 
-        return $connected_user ?: array_pop(ConnectUsers::findByUser_id($studip_user->id));
+        return $connected_user ?: array_pop(ConnectUsers::findByEmail($studip_user->email));
     }
 
     /**
