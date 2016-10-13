@@ -1,5 +1,5 @@
-pluginname=MoodleConnect
-pluginclassname=MoodleConnect
+pluginname=MoodleConnect2
+pluginclassname=MoodleConnect2
 origin=elan-ev
 version=0.2.4
 studipMinVersion=3.1

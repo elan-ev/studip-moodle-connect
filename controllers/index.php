@@ -12,11 +12,11 @@ class IndexController extends StudipController {
     {
         parent::before_filter($action, $args);
 
-        $this->moodle_uri = Config::getInstance()->MOODLE_API_URI;
+        $this->moodle_uri = Config::getInstance()->MOODLE2_API_URI;
 
         if ($this->moodle_uri) {
             Moodle\REST::setServiceURI($this->moodle_uri);
-            Moodle\REST::setToken(Config::getInstance()->MOODLE_API_TOKEN);
+            Moodle\REST::setToken(Config::getInstance()->MOODLE2_API_TOKEN);
         }
 
         $this->course_id       = Request::get('cid');
