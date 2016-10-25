@@ -5,7 +5,7 @@ class IndexController extends StudipController {
     {
         parent::__construct($dispatcher);
         $this->plugin = $dispatcher->plugin;
-        Navigation::activateItem('course/moodle');
+        Navigation::activateItem('course/moodle2');
     }
 
     public function before_filter(&$action, &$args)
@@ -15,8 +15,8 @@ class IndexController extends StudipController {
         $this->moodle_uri = Config::getInstance()->MOODLE2_API_URI;
 
         if ($this->moodle_uri) {
-            Moodle\REST::setServiceURI($this->moodle_uri);
-            Moodle\REST::setToken(Config::getInstance()->MOODLE2_API_TOKEN);
+            Moodle2\REST::setServiceURI($this->moodle_uri);
+            Moodle2\REST::setToken(Config::getInstance()->MOODLE2_API_TOKEN);
         }
 
         $this->course_id       = Request::get('cid');
@@ -24,7 +24,7 @@ class IndexController extends StudipController {
         $this->user            = $GLOBALS['user'];
         $this->elevated_rights = $GLOBALS['perm']->have_studip_perm('tutor', $this->course_id);
 
-        PageLayout::setTitle($this->course->getFullname()." - " ._("Moodle"));
+        PageLayout::setTitle($this->course->getFullname()." - " ._("Moodle2"));
 
         // $this->set_layout('layouts/base');
         $this->set_layout($GLOBALS['template_factory']->open('layouts/base'));
@@ -33,14 +33,14 @@ class IndexController extends StudipController {
     public function index_action()
     {
         SimpleORMap::expireTableScheme();
-        $this->moodle = array_pop(Moodle\ConnectCourses::findByCourse_Id($this->course_id));
+        $this->moodle = array_pop(Moodle2\ConnectCourses::findByCourse_Id($this->course_id));
 
 
         $this->unconfigured = false;
 
         try {
             if ($this->moodle) {
-                $this->connected_course = array_pop(Moodle\REST::post('core_course_get_courses', array(
+                $this->connected_course = array_pop(Moodle2\REST::post('core_course_get_courses', array(
                     options => array(
                         'ids' => array(
                             $this->moodle->moodle_id
@@ -50,20 +50,20 @@ class IndexController extends StudipController {
 
                 // create user account and add user too moodle-course (if necessary)
                 try {
-                    $this->moodle_user = Moodle\Helper::checkPrerequisites($this->user, $this->course_id);
-                } catch (Moodle\APIException $e) {
+                    $this->moodle_user = Moodle2\Helper::checkPrerequisites($this->user, $this->course_id);
+                } catch (Moodle2\APIException $e) {
                     PageLayout::postMessage(MessageBox::error(dgettext(
                         'moodle_connect',
                         'Fehler beim prüfen der Voraussetzungen zur Weiterleitung nach Moodle'
                     ) .' ('. $e->getMessage() .')'));
-                } catch (Moodle\UnconfiguredException $e) {
+                } catch (Moodle2\UnconfiguredException $e) {
 
                 }
             } else if ($this->elevated_rights) {
-                $this->moodle_courses = Moodle\Helper::getCoursesForUser($this->user->email);
+                $this->moodle_courses = Moodle2\Helper::getCoursesForUser($this->user->email);
             }
 
-        } catch (Moodle\UnconfiguredException $e) {
+        } catch (Moodle2\UnconfiguredException $e) {
             PageLayout::postMessage(MessageBox::error(
                 _('Die Moodle-Schnittstelle wurde noch nicht konfiguriert! '
                     . 'Wenden Sie sich bitte an einen Systemadministrator.')
@@ -85,7 +85,7 @@ class IndexController extends StudipController {
             throw new InvalidArgumentException('No course id given while trying to connect to moodle course');
         }
 
-        $connect = new Moodle\ConnectCourses();
+        $connect = new Moodle2\ConnectCourses();
         $connect->course_id = $this->course_id;
         $connect->moodle_id = Request::option('moodle_course', $moodle_course);
 
@@ -110,7 +110,7 @@ class IndexController extends StudipController {
             throw new InvalidArgumentException('No course id given while trying to disconnect to moodle course');
         }
 
-        if ($connect = array_pop(Moodle\ConnectCourses::findByCourse_id($this->course_id))) {
+        if ($connect = array_pop(Moodle2\ConnectCourses::findByCourse_id($this->course_id))) {
             if ($connect->moodle_id == $moodle_id) {
                 $connect->delete();
             }
@@ -131,11 +131,11 @@ class IndexController extends StudipController {
             throw new AccessDeniedException();
         }
 
-        $moodle = array_pop(Moodle\ConnectCourses::findByCourse_Id($this->course_id));
+        $moodle = array_pop(Moodle2\ConnectCourses::findByCourse_Id($this->course_id));
 
         if (!$moodle) {
             // TODO: for the time being, use the first available category
-            $category = reset(Moodle\REST::get('core_course_get_categories'));
+            $category = reset(Moodle2\REST::get('core_course_get_categories'));
 
             $data = array('courses' => array(
                 array(
@@ -145,7 +145,7 @@ class IndexController extends StudipController {
                 )
             ));
 
-            $response = Moodle\REST::post('core_course_create_courses', $data);
+            $response = Moodle2\REST::post('core_course_create_courses', $data);
             $moodle_course = array_pop($response);
 
 
