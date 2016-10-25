@@ -2,7 +2,7 @@
 require 'bootstrap.php';
 
 /**
- * MoodleConnect2.class.php
+ * MoodleConnectZwei.class.php
  *
  * ...
  *
@@ -10,7 +10,7 @@ require 'bootstrap.php';
  * @version 0.1a
  */
 
-class MoodleConnect2 extends StudIPPlugin implements StandardPlugin
+class MoodleConnectZwei extends StudIPPlugin implements StandardPlugin
 {
 
     public function __construct()
