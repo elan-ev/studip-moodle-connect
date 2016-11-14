@@ -46,6 +46,13 @@ class Helper
 
         return $users['users'][0];
     }
+    
+    
+    public static function getUsernameByMail($mail)
+    {
+        return array_pop(ConnectUsers::findbyEmail($mail))->moodle_username;
+
+    }
 
     /**
      * Return to user-data for the passed user in the passed course.
@@ -174,7 +181,8 @@ class Helper
         if ($connected_course) {
 
             // check if the current user already exists in Moodle and create it if necessary
-            if (!$moodle_user = self::getUser(strtolower($studip_user->email))) {
+            //if (!$moodle_user = self::getUser(strtolower($studip_user->email))) {
+            if (!$moodle_user = self::getUser(self::getUsernameByMail($studip_user->email))){
 
                 // check if a user with the currents user e-mail-address already exists
                 if (self::getUserByMail($studip_user->email)) {
@@ -183,7 +191,7 @@ class Helper
                         _('Es gibt bereits einen Nutzer in Moodle mit dieser Mail-Adresse! (%s)'),
                         $studip_user->email
                     )));
-
+//hier Weiterleitung auf User-Verknüpfung
                     return false;
                 }
 
@@ -204,6 +212,7 @@ class Helper
                 // create entry in moodle_connect_users
                 if (!$connected_user = array_pop(ConnectUsers::findbyEmail($studip_user->email))) {
                     $connected_user = new ConnectUsers();
+                    $connected_user->moodle_username = $studip_user->email;
                     $connected_user->email = $studip_user->email;
                 }
                 $connected_user->moodle_password = $pw;
@@ -216,19 +225,23 @@ class Helper
                 $connected_user = array_pop(ConnectUsers::findByEmail($studip_user->email));
 
                 if (!$connected_user) {
-                    throw new \Exception('User exists in moodle, but no stored password to connect is found!');
+                    \PageLayout::postMessage(\MessageBox::error(sprintf(
+                        _('Es gibt bereits einen Nutzer in Moodle mit dieser Mail-Adresse, aber es konnte kein zugehöriges Passwort gefunden werden! (%s)'),
+                        $studip_user->email
+                    )));
+                    //throw new \Exception('User exists in moodle, but no stored password to connect is found!');
                 }
             }
 
             $course_role = self::getTranslatedRole($studip_user->id, $course_id);
 
             // check if user is already enroled in moodle-course
-            $course_user = self::getUserInCourse(strtolower($studip_user->email), $connected_course->moodle_id);
+            $course_user = self::getUserInCourse(self::getUsernameByMail($studip_user->email), $connected_course->moodle_id);
 
             // enrole user for moodle-course, if necessary
             if (!$course_user) {
                 self::enroleUserInCourse($moodle_user['id'], $connected_course->moodle_id, $course_role);
-                $course_user = self::getUserInCourse(strtolower($studip_user->email), $connected_course->moodle_id);
+                $course_user = self::getUserInCourse(self::getUsernameByMail($studip_user->email), $connected_course->moodle_id);
 
                 if (!$course_user) {
                     throw new \Exception('Could not enrole user in moodle-course!');
@@ -249,7 +262,6 @@ class Helper
                 }
             }
         }
-
         return $connected_user ?: array_pop(ConnectUsers::findByEmail($studip_user->email));
     }
 

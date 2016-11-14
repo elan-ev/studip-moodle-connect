@@ -37,6 +37,7 @@ class IndexController extends StudipController {
 
 
         $this->unconfigured = false;
+        $this->moodle_user = Moodle2\Helper::getUsernameByMail($this->user->email);
 
         try {
             if ($this->moodle) {
@@ -124,6 +125,37 @@ class IndexController extends StudipController {
 
         $this->redirect('index');
     }
+    
+    public function connect_user_action()
+    {
+        CSRFProtection::verifySecurityToken();
+
+        $connected_user = new Moodle2\ConnectUsers();
+        $connected_user->email = $this->user->email;
+        $connected_user->moodle_username = Request::get('moodle_username');
+        $connected_user->moodle_password = Request::get('moodle_user_pw');
+        $connected_user->store();
+        
+        /**if (!$this->elevated_rights) {
+            throw new AccessDeniedException();
+        }
+
+        if (!Request::option('moodle_course') && !$moodle_course) {
+            throw new InvalidArgumentException('No course id given while trying to connect to moodle course');
+        }
+
+        $connect = new Moodle2\ConnectCourses();
+        $connect->course_id = $this->course_id;
+        $connect->moodle_id = Request::option('moodle_course', $moodle_course);
+
+        $connect->store();
+
+        PageLayout::postMessage(MessageBox::success(
+            _('Diese Veranstaltung ist nun mit einem Moodle-Kurs verknüpft!')
+        ));
+        **/
+        $this->redirect('index');
+    }
 
     public function create_action()
     {
@@ -148,13 +180,22 @@ class IndexController extends StudipController {
             $response = Moodle2\REST::post('core_course_create_courses', $data);
             $moodle_course = array_pop($response);
 
+            if($moodle_course){
+           
+                PageLayout::postMessage(MessageBox::success(
+                    _('Es wurde ein neuer Kurs in Moodle angelegt.')
+                ));
 
-            PageLayout::postMessage(MessageBox::success(
-                _('Es wurde ein neuer Kurs in Moodle angelegt.')
-            ));
-
-            $this->redirect('index/connect/' . $moodle_course['id']);
-
+                $this->redirect('index/connect/' . $moodle_course['id']);
+                return;
+            } else { 
+                
+                PageLayout::postMessage(MessageBox::success(
+                    _('Es konnte kein Kurs in Moodle angelegt werden.')
+                ));
+                        
+            }
+            $this->redirect('index');
             return;
         } else {
             throw new Exception('course is already connected!');
