@@ -201,8 +201,8 @@ class Helper
                     array(
                         'username'  => strtolower($studip_user->email),
                         'password'  => $pw,
-                        'firstname' => $studip_user->vorname,
-                        'lastname'  => $studip_user->nachname,
+                        'firstname' => studip_utf8encode($studip_user->vorname),
+                        'lastname'  => studip_utf8encode($studip_user->nachname),
                         'email'     => $studip_user->email
                     )
                 ));
