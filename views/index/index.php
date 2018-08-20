@@ -24,6 +24,11 @@ if ($connected_course && $elevated_rights && !$unconfigured) {
 
 ?>
 
+<? if (!$moodle_user) : ?>
+ <?= $this->render_partial('index/_connect_user') ?>
+<? endif ?>
+
+
 <? if (!$unconfigured) : ?>
     <? if ($connected_course) : ?>
         <!-- Zum Kurs in Moodle (new tab) -->

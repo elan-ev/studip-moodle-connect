@@ -2,7 +2,7 @@
 require 'bootstrap.php';
 
 /**
- * MoodleConnect.class.php
+ * MoodleConnectZwei.class.php
  *
  * ...
  *
@@ -10,7 +10,7 @@ require 'bootstrap.php';
  * @version 0.1a
  */
 
-class MoodleConnect extends StudIPPlugin implements StandardPlugin
+class MoodleConnectZwei extends StudIPPlugin implements StandardPlugin
 {
 
     public function __construct()
@@ -27,8 +27,8 @@ class MoodleConnect extends StudIPPlugin implements StandardPlugin
     public function getTabNavigation($course_id)
     {
         return array(
-            'moodle' => new Navigation(
-                'Moodle',
+            'moodle2' => new Navigation(
+                'Moodle2',
                 PluginEngine::getURL($this, array(), 'index')
             )
         );
