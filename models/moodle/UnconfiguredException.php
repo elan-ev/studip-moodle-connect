@@ -1,4 +1,4 @@
 <?php
-namespace Moodle2;
+namespace Moodle;
 
 class UnconfiguredException extends \Exception {}

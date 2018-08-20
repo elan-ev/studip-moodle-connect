@@ -1,6 +1,6 @@
 <?php
 
-class Moodle2AddTableAndConfig extends Migration
+class MoodleAddTableAndConfig extends Migration
 {
     public function description()
     {
@@ -22,36 +22,36 @@ class Moodle2AddTableAndConfig extends Migration
         $statement = $db->prepare($query);
 
         $statement->execute(array(
-            ':field'       => 'MOODLE2_API_URI',
+            ':field'       => 'MOODLE_API_URI',
             ':value'       => '',
-            ':description' => 'URL zur Moodle2 REST API'
+            ':description' => 'URL zur Moodle REST API'
         ));
 
         $statement->execute(array(
-            ':field'       => 'MOODLE2_API_TOKEN',
+            ':field'       => 'MOODLE_API_TOKEN',
             ':value'       => '',
-            ':description' => 'Token für die Moodle2 REST API'
+            ':description' => 'Token für die Moodle REST API'
         ));
 
 
         // add db-table
-        $db->exec("CREATE TABLE IF NOT EXISTS `moodle2_connect_courses` (
+        $db->exec("CREATE TABLE IF NOT EXISTS `moodle_connect_courses` (
             `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
             `course_id` varchar(32) NOT NULL,
             `moodle_id` int NOT NULL
         )");
 
-        $db->exec("ALTER TABLE `moodle2_connect_courses`
+        $db->exec("ALTER TABLE `moodle_connect_courses`
             ADD UNIQUE `course_id_moodle_id` (`course_id`, `moodle_id`)");
 
 
-        $db->exec("CREATE TABLE IF NOT EXISTS `moodle2_connect_users` (
+        $db->exec("CREATE TABLE IF NOT EXISTS `moodle_connect_users` (
             `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
             `user_id` varchar(32) NOT NULL,
             `moodle_password` varchar(32) NOT NULL
         )");
 
-        $db->exec("ALTER TABLE `moodle2_connect_users`
+        $db->exec("ALTER TABLE `moodle_connect_users`
             ADD UNIQUE `user_id` (`user_id`)");
 
         SimpleORMap::expireTableScheme();
@@ -61,11 +61,11 @@ class Moodle2AddTableAndConfig extends Migration
     {
         $db = DBManager::get();
 
-        $db->exec("DELETE FROM `config` WHERE `field` = 'MOODLE2_API_URI'");
-        $db->exec("DELETE FROM `config` WHERE `field` = 'MOODLE2_API_TOKEN'");
+        $db->exec("DELETE FROM `config` WHERE `field` = 'MOODLE_API_URI'");
+        $db->exec("DELETE FROM `config` WHERE `field` = 'MOODLE_API_TOKEN'");
 
-        $db->exec("DROP TABLE moodle2_connect_users");
-        $db->exec("DROP TABLE moodle2_connect_courses");
+        $db->exec("DROP TABLE moodle_connect_users");
+        $db->exec("DROP TABLE moodle_connect_courses");
 
         SimpleORMap::expireTableScheme();
     }

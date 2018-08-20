@@ -1,5 +1,5 @@
 <?php
-namespace Moodle2;
+namespace Moodle;
 
 class APIException extends \Exception
 {
