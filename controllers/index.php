@@ -33,15 +33,15 @@ class IndexController extends StudipController {
     public function index_action()
     {
         SimpleORMap::expireTableScheme();
-        $this->moodle = array_pop(Moodle2\ConnectCourses::findByCourse_Id($this->course_id));
+        $this->moodle = array_pop(Moodle\ConnectCourses::findByCourse_Id($this->course_id));
 
 
         $this->unconfigured = false;
-        $this->moodle_user = Moodle2\Helper::getUsernameByMail($this->user->email);
+        $this->moodle_user = Moodle\Helper::getUsernameByMail($this->user->email);
 
         try {
             if ($this->moodle) {
-                $this->connected_course = array_pop(Moodle2\REST::post('core_course_get_courses', array(
+                $this->connected_course = array_pop(Moodle\REST::post('core_course_get_courses', array(
                     options => array(
                         'ids' => array(
                             $this->moodle->moodle_id
@@ -51,8 +51,8 @@ class IndexController extends StudipController {
 
                 // create user account and add user too moodle-course (if necessary)
                 try {
-                    $this->moodle_user = Moodle2\Helper::checkPrerequisites($this->user, $this->course_id);
-                } catch (Moodle2\APIException $e) {
+                    $this->moodle_user = Moodle\Helper::checkPrerequisites($this->user, $this->course_id);
+                } catch (Moodle\APIException $e) {
                     PageLayout::postMessage(MessageBox::error(dgettext(
                         'moodle_connect',
                         'Fehler beim prüfen der Voraussetzungen zur Weiterleitung nach Moodle'
@@ -64,7 +64,7 @@ class IndexController extends StudipController {
                 $this->moodle_courses = Moodle\Helper::getCoursesForUser($this->user->email);
             }
 
-        } catch (Moodle2\UnconfiguredException $e) {
+        } catch (Moodle\UnconfiguredException $e) {
             PageLayout::postMessage(MessageBox::error(
                 _('Die Moodle-Schnittstelle wurde noch nicht konfiguriert! '
                     . 'Wenden Sie sich bitte an einen Systemadministrator.')
@@ -144,7 +144,7 @@ class IndexController extends StudipController {
             throw new InvalidArgumentException('No course id given while trying to connect to moodle course');
         }
 
-        $connect = new Moodle2\ConnectCourses();
+        $connect = new Moodle\ConnectCourses();
         $connect->course_id = $this->course_id;
         $connect->moodle_id = Request::option('moodle_course', $moodle_course);
 
@@ -177,7 +177,7 @@ class IndexController extends StudipController {
                 )
             ));
 
-            $response = Moodle2\REST::post('core_course_create_courses', $data);
+            $response = Moodle\REST::post('core_course_create_courses', $data);
             $moodle_course = array_pop($response);
 
             if($moodle_course){

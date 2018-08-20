@@ -68,7 +68,7 @@ class REST
      *
      * @return mixed $response
      *
-     * @throws Moodle2\APIException
+     * @throws Moodle\APIException
      */
     public static function except($response, $api_route)
     {
