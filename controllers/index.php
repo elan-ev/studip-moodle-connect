@@ -55,7 +55,7 @@ class IndexController extends StudipController {
                 } catch (Moodle\APIException $e) {
                     PageLayout::postMessage(MessageBox::error(dgettext(
                         'moodle_connect',
-                        'Fehler beim prüfen der Voraussetzungen zur Weiterleitung nach Moodle'
+                        'Fehler beim prÃ¼fen der Voraussetzungen zur Weiterleitung nach Moodle'
                     ) .' ('. $e->getMessage() .')'));
                 } catch (Moodle\UnconfiguredException $e) {
 
@@ -93,7 +93,7 @@ class IndexController extends StudipController {
         $connect->store();
 
         PageLayout::postMessage(MessageBox::success(
-            _('Diese Veranstaltung ist nun mit einem Moodle-Kurs verknüpft!')
+            _('Diese Veranstaltung ist nun mit einem Moodle-Kurs verknÃ¼pft!')
         ));
 
         $this->redirect('index');
@@ -120,7 +120,7 @@ class IndexController extends StudipController {
         // TODO: remove participants of current course from moodle_course (vs. remove all participants?!?)
 
         PageLayout::postMessage(MessageBox::success(
-            _('Diese Veranstaltung ist nun mit keinem Moodle-Kurs mehr verknüpft.')
+            _('Diese Veranstaltung ist nun mit keinem Moodle-Kurs mehr verknÃ¼pft.')
         ));
 
         $this->redirect('index');

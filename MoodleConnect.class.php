@@ -6,23 +6,12 @@ require 'bootstrap.php';
  *
  * ...
  *
- * @author  Till Glöggler <tgloeggl@uos.de>
+ * @author  Till GlÃ¶ggler <tgloeggl@uos.de>
  * @version 0.1a
  */
 
 class MoodleConnect extends StudIPPlugin implements StandardPlugin
 {
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    public function initialize ()
-    {
-        PageLayout::addStylesheet($this->getPluginURL().'/assets/style.css');
-        PageLayout::addScript($this->getPluginURL().'/assets/application.js');
-    }
 
     public function getTabNavigation($course_id)
     {
@@ -41,12 +30,12 @@ class MoodleConnect extends StudIPPlugin implements StandardPlugin
 
     public function getIconNavigation($course_id, $last_visit, $user_id)
     {
-        // ...
+        return null;
     }
 
     public function getInfoTemplate($course_id)
     {
-        // ...
+        return null;
     }
 
     public function perform($unconsumed_path)

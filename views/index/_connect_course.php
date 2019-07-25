@@ -1,4 +1,4 @@
-<h2>Mit Moodlekurs verknüpfen</h2>
+<h2>Mit Moodlekurs verknÃ¼pfen</h2>
 <form method="post" action="<?= $controller->url_for('index/connect/') ?>">
     <?= CSRFProtection::tokenTag() ?>
 
@@ -9,5 +9,5 @@
         <? endif ?>
         <? endforeach ?>
     </select>
-    <?= \Studip\Button::create(_('Mit Moodlekurs verknüpfen')) ?>
+    <?= \Studip\Button::create(_('Mit Moodlekurs verknÃ¼pfen')) ?>
 </form>

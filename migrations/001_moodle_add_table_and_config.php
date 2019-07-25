@@ -13,10 +13,10 @@ class MoodleAddTableAndConfig extends Migration
 
         // add config-entry
         $query = "INSERT IGNORE INTO `config` (
-                    `config_id`, `parent_id`, `field`, `value`, `is_default`,
-                    `type`, `range`, `section`, `mkdate`, `chdate`, `description`
+                    `field`, `value`, `type`, `range`, `section`,
+                    `mkdate`, `chdate`, `description`
                   ) VALUES (
-                    MD5(:field), '', :field, :value, 1, 'string', 'global', 'moodle',
+                    :field, :value, 'string', 'global', 'moodle',
                     UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), :description
                   )";
         $statement = $db->prepare($query);
@@ -30,7 +30,7 @@ class MoodleAddTableAndConfig extends Migration
         $statement->execute(array(
             ':field'       => 'MOODLE_API_TOKEN',
             ':value'       => '',
-            ':description' => 'Token f¸r die Moodle REST API'
+            ':description' => 'Token f√ºr die Moodle REST API'
         ));
 
 
