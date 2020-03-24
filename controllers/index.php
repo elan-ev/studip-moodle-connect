@@ -1,10 +1,10 @@
 <?php
-class IndexController extends StudipController {
 
+class IndexController extends PluginController
+{
     public function __construct($dispatcher)
     {
         parent::__construct($dispatcher);
-        $this->plugin = $dispatcher->plugin;
         Navigation::activateItem('course/moodle');
     }
 
@@ -24,7 +24,7 @@ class IndexController extends StudipController {
         $this->user            = $GLOBALS['user'];
         $this->elevated_rights = $GLOBALS['perm']->have_studip_perm('tutor', $this->course_id);
 
-        PageLayout::setTitle($this->course->getFullname()." - " ._("Moodle"));
+        PageLayout::setTitle($this->course->getFullname() . " - " . _("Moodle"));
 
         // $this->set_layout('layouts/base');
         $this->set_layout($GLOBALS['template_factory']->open('layouts/base'));
@@ -37,26 +37,26 @@ class IndexController extends StudipController {
 
 
         $this->unconfigured = false;
-        $this->moodle_user = Moodle\Helper::getUsernameByMail($this->user->email);
+        $this->moodle_user  = Moodle\Helper::getUsernameByMail($this->user->email);
 
         try {
             if ($this->moodle) {
-                $this->connected_course = array_pop(Moodle\REST::post('core_course_get_courses', array(
-                    options => array(
-                        'ids' => array(
+                $this->connected_course = array_pop(Moodle\REST::post('core_course_get_courses', [
+                    options => [
+                        'ids' => [
                             $this->moodle->moodle_id
-                        )
-                    )
-                )));
+                        ]
+                    ]
+                ]));
 
                 // create user account and add user too moodle-course (if necessary)
                 try {
                     $this->moodle_user = Moodle\Helper::checkPrerequisites($this->user, $this->course_id);
                 } catch (Moodle\APIException $e) {
-                    PageLayout::postMessage(MessageBox::error(dgettext(
-                        'moodle_connect',
-                        'Fehler beim prüfen der Voraussetzungen zur Weiterleitung nach Moodle'
-                    ) .' ('. $e->getMessage() .')'));
+                    PageLayout::postError(dgettext(
+                            'moodle_connect',
+                            'Fehler beim prüfen der Voraussetzungen zur Weiterleitung nach Moodle'
+                        ) . ' (' . $e->getMessage() . ')');
                 } catch (Moodle\UnconfiguredException $e) {
 
                 }
@@ -65,10 +65,10 @@ class IndexController extends StudipController {
             }
 
         } catch (Moodle\UnconfiguredException $e) {
-            PageLayout::postMessage(MessageBox::error(
+            PageLayout::postError(
                 _('Die Moodle-Schnittstelle wurde noch nicht konfiguriert! '
                     . 'Wenden Sie sich bitte an einen Systemadministrator.')
-            ));
+            );
 
             $this->unconfigured = true;
         }
@@ -86,15 +86,15 @@ class IndexController extends StudipController {
             throw new InvalidArgumentException('No course id given while trying to connect to moodle course');
         }
 
-        $connect = new Moodle\ConnectCourses();
+        $connect            = new Moodle\ConnectCourses();
         $connect->course_id = $this->course_id;
         $connect->moodle_id = Request::option('moodle_course', $moodle_course);
 
         $connect->store();
 
-        PageLayout::postMessage(MessageBox::success(
+        PageLayout::postSuccess(
             _('Diese Veranstaltung ist nun mit einem Moodle-Kurs verknüpft!')
-        ));
+        );
 
         $this->redirect('index');
     }
@@ -119,41 +119,41 @@ class IndexController extends StudipController {
 
         // TODO: remove participants of current course from moodle_course (vs. remove all participants?!?)
 
-        PageLayout::postMessage(MessageBox::success(
+        PageLayout::postWarning(
             _('Diese Veranstaltung ist nun mit keinem Moodle-Kurs mehr verknüpft.')
-        ));
+        );
 
         $this->redirect('index');
     }
-    
+
     public function connect_user_action()
     {
         CSRFProtection::verifySecurityToken();
 
-        $connected_user = new Moodle\ConnectUsers();
-        $connected_user->email = $this->user->email;
+        $connected_user                  = new Moodle\ConnectUsers();
+        $connected_user->email           = $this->user->email;
         $connected_user->moodle_username = Request::get('moodle_username');
         $connected_user->moodle_password = Request::get('moodle_user_pw');
         $connected_user->store();
-        
+
         /**if (!$this->elevated_rights) {
-            throw new AccessDeniedException();
-        }
-
-        if (!Request::option('moodle_course') && !$moodle_course) {
-            throw new InvalidArgumentException('No course id given while trying to connect to moodle course');
-        }
-
-        $connect = new Moodle\ConnectCourses();
-        $connect->course_id = $this->course_id;
-        $connect->moodle_id = Request::option('moodle_course', $moodle_course);
-
-        $connect->store();
-
-        PageLayout::postMessage(MessageBox::success(
-            _('Diese Veranstaltung ist nun mit einem Moodle-Kurs verkn�pft!')
-        ));
-        **/
+         * throw new AccessDeniedException();
+         * }
+         *
+         * if (!Request::option('moodle_course') && !$moodle_course) {
+         * throw new InvalidArgumentException('No course id given while trying to connect to moodle course');
+         * }
+         *
+         * $connect = new Moodle\ConnectCourses();
+         * $connect->course_id = $this->course_id;
+         * $connect->moodle_id = Request::option('moodle_course', $moodle_course);
+         *
+         * $connect->store();
+         *
+         * PageLayout::postMessage(MessageBox::success(
+         * _('Diese Veranstaltung ist nun mit einem Moodle-Kurs verkn�pft!')
+         * ));
+         **/
         $this->redirect('index');
     }
 
@@ -169,31 +169,29 @@ class IndexController extends StudipController {
             // TODO: for the time being, use the first available category
             $category = reset(Moodle\REST::get('core_course_get_categories'));
 
-            $data = array('courses' => array(
-                array(
-                    'fullname' => studip_utf8encode($this->course->getFullname('number-name-semester')),
-                    'shortname' => md5(uniqid()),
+            $data = ['courses' => [
+                [
+                    'fullname'   => studip_utf8encode($this->course->getFullname('number-name-semester')),
+                    'shortname'  => md5(uniqid()),
                     'categoryid' => $category['id']
-                )
-            ));
+                ]
+            ]];
 
-            $response = Moodle\REST::post('core_course_create_courses', $data);
+            $response      = Moodle\REST::post('core_course_create_courses', $data);
             $moodle_course = array_pop($response);
 
-            if($moodle_course){
-           
-                PageLayout::postMessage(MessageBox::success(
+            if ($moodle_course) {
+
+                PageLayout::postSuccess(
                     _('Es wurde ein neuer Kurs in Moodle angelegt.')
-                ));
+                );
 
                 $this->redirect('index/connect/' . $moodle_course['id']);
                 return;
-            } else { 
-                
-                PageLayout::postMessage(MessageBox::success(
+            } else {
+                PageLayout::postError(
                     _('Es konnte kein Kurs in Moodle angelegt werden.')
-                ));
-                        
+                );
             }
             $this->redirect('index');
             return;
@@ -202,23 +200,5 @@ class IndexController extends StudipController {
         }
 
         $this->redirect('index');
-    }
-
-    // customized #url_for for plugins
-    public function url_for($to)
-    {
-        $args = func_get_args();
-
-        # find params
-        $params = array();
-        if (is_array(end($args))) {
-            $params = array_pop($args);
-        }
-
-        # urlencode all but the first argument
-        $args = array_map('urlencode', $args);
-        $args[0] = $to;
-
-        return PluginEngine::getURL($this->dispatcher->plugin, $params, join('/', $args));
     }
 }

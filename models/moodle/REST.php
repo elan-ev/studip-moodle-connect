@@ -28,7 +28,7 @@ class REST
     {
         self::checkConfig();
 
-        $curl = curl_init(self::$uri .'/webservice/rest/server.php?wstoken=' .
+        $curl = curl_init(self::$uri . '/webservice/rest/server.php?wstoken=' .
             self::$token . '&wsfunction=' . $function . '&moodlewsrestformat=json');
 
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -45,7 +45,7 @@ class REST
     {
         self::checkConfig();
 
-        $curl = curl_init(self::$uri .'/webservice/rest/server.php?wstoken=' .
+        $curl = curl_init(self::$uri . '/webservice/rest/server.php?wstoken=' .
             self::$token . '&wsfunction=' . $function . '&moodlewsrestformat=json');
 
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -63,8 +63,8 @@ class REST
      * Throws an exception if an API response contains an exception, returns the
      * response if none is found
      *
-     * @param mixed $response  the response-array from the api-call
-     * @param string $api_route  the route whoch was tried to call
+     * @param mixed $response the response-array from the api-call
+     * @param string $api_route the route whoch was tried to call
      *
      * @return mixed $response
      *
