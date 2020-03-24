@@ -5,7 +5,7 @@
     <select name="moodle_course">
         <? foreach($moodle_courses as $course) : ?>
         <? if ($course['format'] != 'site') : /* skip the installation itself, which is represented as a course as well */ ?>
-            <option value="<?= $course['id'] ?>"><?= $course['fullname'] ?></option>
+            <option value="<?= $course['id'] ?>"><?= htmlReady($course['fullname'] )?></option>
         <? endif ?>
         <? endforeach ?>
     </select>

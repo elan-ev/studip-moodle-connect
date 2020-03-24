@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__ . '/bootstrap.php';
+StudipAutoloader::addAutoloadPath(__DIR__ . '/models/moodle');
+StudipAutoloader::addAutoloadPath(__DIR__ . '/models/moodle', 'Moodle');
 
 /**
  * MoodleConnect.class.php
@@ -12,7 +13,6 @@ require_once __DIR__ . '/bootstrap.php';
 
 class MoodleConnect extends StudIPPlugin implements StandardPlugin
 {
-
     public function getTabNavigation($course_id)
     {
         return [

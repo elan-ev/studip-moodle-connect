@@ -35,7 +35,6 @@ class IndexController extends PluginController
         SimpleORMap::expireTableScheme();
         $this->moodle = array_pop(Moodle\ConnectCourses::findByCourse_Id($this->course_id));
 
-
         $this->unconfigured = false;
         $this->moodle_user  = Moodle\Helper::getUsernameByMail($this->user->email);
 

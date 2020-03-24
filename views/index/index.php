@@ -18,7 +18,7 @@ if ($connected_course && $elevated_rights && !$unconfigured) {
     $actions->addLink(
         dgettext('moodle_connect', 'Kursverknüpfung aufheben'),
         $controller->url_for('index/disconnect/' . $moodle->moodle_id),
-        (class_exists('Icon') ? Icon::create('link-intern', 'clickable') : 'icons/16/blue/link-intern')
+        Icon::create('link-intern')
     );
 
     Sidebar::get()->addWidget($actions);

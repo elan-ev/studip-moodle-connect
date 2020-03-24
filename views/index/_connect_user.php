@@ -3,9 +3,9 @@
     <?= CSRFProtection::tokenTag() ?>
     Moodle-User der verknüpft werden soll:<br>
     <input name="moodle_username">
-    </input><br>
+    <br>
     Moodle-Passwort des Moodle-Users der verknüpft werden soll:<br>
     <input name="moodle_user_pw">
-    </input><br>
+    <br>
     <?= \Studip\Button::create(_('Mit Nutzer verknüpfen')) ?>
 </form>

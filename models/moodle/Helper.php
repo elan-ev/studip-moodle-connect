@@ -15,7 +15,7 @@ class Helper
     {
         $users = REST::post('core_user_get_users', [
             'criteria' => [
-                ['key' => 'username', 'value' => strtolower($username)]
+                ['key' => 'username', 'value' => mb_strtolower($username)]
             ]
         ]);
 
@@ -72,7 +72,7 @@ class Helper
 
         $user_in_course = false;
         foreach ($response as $m_user) {
-            if ($m_user['username'] == strtolower($username)) {
+            if ($m_user['username'] == mb_strtolower($username)) {
                 $user_in_course = $m_user;
                 break;
             }
@@ -168,7 +168,7 @@ class Helper
             $bytes = openssl_random_pseudo_bytes(32, $strong);
 
             if (false !== $bytes && true === $strong) {
-                $pw = substr(base64_encode($bytes), 0, 20);
+                $pw = mb_substr(base64_encode($bytes), 0, 20);
             } else {
                 throw new \Exception("Unable to generate secure token from OpenSSL.");
             }
@@ -198,11 +198,10 @@ class Helper
                 // check if a user with the currents user e-mail-address already exists
                 if (self::getUserByMail($studip_user->email)) {
                     // TODO: messages should not be posted here
-                    \PageLayout::postMessage(\MessageBox::error(sprintf(
+                    \PageLayout::postError(sprintf(
                         _('Es gibt bereits einen Nutzer in Moodle mit dieser Mail-Adresse! (%s)'),
                         $studip_user->email
-                    )));
-//hier Weiterleitung auf User-Verkn�pfung
+                    ));
                     return false;
                 }
 
@@ -210,10 +209,10 @@ class Helper
 
                 $data = ['users' => [
                     [
-                        'username'  => strtolower($studip_user->email),
+                        'username'  => mb_strtolower($studip_user->email),
                         'password'  => $pw,
-                        'firstname' => studip_utf8encode($studip_user->vorname),
-                        'lastname'  => studip_utf8encode($studip_user->nachname),
+                        'firstname' => $studip_user->vorname,
+                        'lastname'  => $studip_user->nachname,
                         'email'     => $studip_user->email
                     ]
                 ]];
@@ -229,18 +228,17 @@ class Helper
                 $connected_user->moodle_password = $pw;
                 $connected_user->store();
 
-                $moodle_user = self::getUser(strtolower($studip_user->email));
+                $moodle_user = self::getUser(mb_strtolower($studip_user->email));
 
             } else {
                 // load users credentials from DB
                 $connected_user = array_pop(ConnectUsers::findByEmail($studip_user->email));
 
                 if (!$connected_user) {
-                    \PageLayout::postMessage(\MessageBox::error(sprintf(
-                        _('Es gibt bereits einen Nutzer in Moodle mit dieser Mail-Adresse, aber es konnte kein zugeh�riges Passwort gefunden werden! (%s)'),
+                    \PageLayout::postError(sprintf(
+                        _('Es gibt bereits einen Nutzer in Moodle mit dieser Mail-Adresse, aber es konnte kein zugehöriges Passwort gefunden werden! (%s)'),
                         $studip_user->email
-                    )));
-                    //throw new \Exception('User exists in moodle, but no stored password to connect is found!');
+                    ));
                 }
             }
 

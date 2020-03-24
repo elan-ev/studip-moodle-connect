@@ -12,7 +12,7 @@ class MoodleAddTableAndConfig extends Migration
         $db = DBManager::get();
 
         // add config-entry
-        $query = "INSERT IGNORE INTO `config` (
+        $query     = "INSERT IGNORE INTO `config` (
                     `field`, `value`, `type`, `range`, `section`,
                     `mkdate`, `chdate`, `description`
                   ) VALUES (
@@ -21,17 +21,17 @@ class MoodleAddTableAndConfig extends Migration
                   )";
         $statement = $db->prepare($query);
 
-        $statement->execute(array(
+        $statement->execute([
             ':field'       => 'MOODLE_API_URI',
             ':value'       => '',
             ':description' => 'URL zur Moodle REST API'
-        ));
+        ]);
 
-        $statement->execute(array(
+        $statement->execute([
             ':field'       => 'MOODLE_API_TOKEN',
             ':value'       => '',
             ':description' => 'Token für die Moodle REST API'
-        ));
+        ]);
 
 
         // add db-table
