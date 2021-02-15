@@ -1,4 +1,5 @@
 <?php
+
 namespace Moodle;
 
 class Helper
@@ -6,17 +7,17 @@ class Helper
     /**
      * Get moodle user-data for passed username
      *
-     * @param string  $username
+     * @param string $username
      *
      * @return mixed  moodle user-data or false, if user does not exist in moodle
      */
     public static function getUser($username)
     {
-        $users = REST::post('core_user_get_users', array(
-            'criteria' => array(
-                array ('key' => 'username', 'value' => strtolower($username))
-            )
-        ));
+        $users = REST::post('core_user_get_users', [
+            'criteria' => [
+                ['key' => 'username', 'value' => mb_strtolower($username)]
+            ]
+        ]);
 
         if (empty($users['users'])) {
             return false;
@@ -28,17 +29,17 @@ class Helper
     /**
      * Get moodle user-data for passed mail address
      *
-     * @param string  $mail
+     * @param string $mail
      *
      * @return mixed  moodle user-data or false, if user does not exist in moodle
      */
     public static function getUserByMail($mail)
     {
-        $users = REST::post('core_user_get_users', array(
-            'criteria' => array(
-                array ('key' => 'email', 'value' => $mail)
-            )
-        ));
+        $users = REST::post('core_user_get_users', [
+            'criteria' => [
+                ['key' => 'email', 'value' => $mail]
+            ]
+        ]);
 
         if (empty($users['users'])) {
             return false;
@@ -46,8 +47,8 @@ class Helper
 
         return $users['users'][0];
     }
-    
-    
+
+
     public static function getUsernameByMail($mail)
     {
         return array_pop(ConnectUsers::findbyEmail($mail))->moodle_username;
@@ -58,20 +59,20 @@ class Helper
      * Return to user-data for the passed user in the passed course.
      * Returns false, if the user is not enroled in the passed course
      *
-     * @param string $username  username for the user to check
-     * @param int    $course_id  course-id of moodle-course
+     * @param string $username username for the user to check
+     * @param int $course_id course-id of moodle-course
      *
      * @return mixed  array of user-data or false, if user is not in passed course
      */
     public static function getUserInCourse($username, $course_id)
     {
-        $response = REST::post('core_enrol_get_enrolled_users', array(
+        $response = REST::post('core_enrol_get_enrolled_users', [
             'courseid' => $course_id
-        ));
+        ]);
 
         $user_in_course = false;
         foreach ($response as $m_user) {
-            if ($m_user['username'] == strtolower($username)) {
+            if ($m_user['username'] == mb_strtolower($username)) {
                 $user_in_course = $m_user;
                 break;
             }
@@ -83,9 +84,9 @@ class Helper
     /**
      * Enrole the passed user in the passed course with the passed role
      *
-     * @param int  $user_id    user-id of moodle-user
-     * @param int  $course_id  course-id of moodle-course
-     * @param string  $role  moodle role-shortname
+     * @param int $user_id user-id of moodle-user
+     * @param int $course_id course-id of moodle-course
+     * @param string $role moodle role-shortname
      *
      * @return void
      */
@@ -93,21 +94,21 @@ class Helper
     {
         $role_id = self::getIdForRole($role);
 
-        $response = REST::post('enrol_manual_enrol_users', array('enrolments' => array(
-            array(
+        $response = REST::post('enrol_manual_enrol_users', ['enrolments' => [
+            [
                 'roleid'   => $role_id,
                 'userid'   => $user_id,
                 'courseid' => (int)$course_id
-            )
-        )));
+            ]
+        ]]);
     }
 
     /**
      * Return the moodle-equivalent for the perms the user has in the passed
      * Stud.IP course
      *
-     * @param string  $user_id  the id of the Stud.IP user
-     * @param string  $course_id  the id of the Stud.IP course
+     * @param string $user_id the id of the Stud.IP user
+     * @param string $course_id the id of the Stud.IP course
      *
      * @return string  the moodle shortname for the equivalent role
      *
@@ -119,12 +120,18 @@ class Helper
 
         $role = false;
         switch ($perm->get_studip_perm($course_id, $user_id)) {
-            case 'user':  case 'autor':  $role = 'student';        break;
-            case 'tutor': case 'dozent': $role = 'editingteacher'; break;
+            case 'user':
+            case 'autor':
+                $role = 'student';
+                break;
+            case 'tutor':
+            case 'dozent':
+                $role = 'editingteacher';
+                break;
         }
 
         if (!$role) {
-            throw new \Exception('Could not determine moodle equivalent for Stud.IP-role: '. $GLOBALS['perm']->get_studip_perm($course_id));
+            throw new \Exception('Could not determine moodle equivalent for Stud.IP-role: ' . $GLOBALS['perm']->get_studip_perm($course_id));
         }
 
         return $role;
@@ -140,8 +147,12 @@ class Helper
     private static function getIdForRole($rolename)
     {
         switch ($rolename) {
-            case 'editingteacher': return 3; break;
-            case 'student'       : return 5; break;
+            case 'editingteacher':
+                return 3;
+                break;
+            case 'student'       :
+                return 5;
+                break;
         }
     }
 
@@ -157,13 +168,13 @@ class Helper
             $bytes = openssl_random_pseudo_bytes(32, $strong);
 
             if (false !== $bytes && true === $strong) {
-                $pw = substr(base64_encode($bytes), 0, 20);
+                $pw = mb_substr(base64_encode($bytes), 0, 20);
             } else {
                 throw new \Exception("Unable to generate secure token from OpenSSL.");
             }
 
-        // make sure that at least one of each of the following chars is present:
-        // uppercase letter, lowercase letter, number, symbol
+            // make sure that at least one of each of the following chars is present:
+            // uppercase letter, lowercase letter, number, symbol
         } while (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/', $pw));
 
         return $pw;
@@ -182,54 +193,52 @@ class Helper
 
             // check if the current user already exists in Moodle and create it if necessary
             //if (!$moodle_user = self::getUser(strtolower($studip_user->email))) {
-            if (!$moodle_user = self::getUser(self::getUsernameByMail($studip_user->email))){
+            if (!$moodle_user = self::getUser(self::getUsernameByMail($studip_user->email))) {
 
                 // check if a user with the currents user e-mail-address already exists
                 if (self::getUserByMail($studip_user->email)) {
                     // TODO: messages should not be posted here
-                    \PageLayout::postMessage(\MessageBox::error(sprintf(
+                    \PageLayout::postError(sprintf(
                         _('Es gibt bereits einen Nutzer in Moodle mit dieser Mail-Adresse! (%s)'),
                         $studip_user->email
-                    )));
-//hier Weiterleitung auf User-Verknüpfung
+                    ));
                     return false;
                 }
 
                 $pw = self::createPassword();
 
-                $data = array('users' => array(
-                    array(
-                        'username'  => strtolower($studip_user->email),
+                $data = ['users' => [
+                    [
+                        'username'  => mb_strtolower($studip_user->email),
                         'password'  => $pw,
-                        'firstname' => studip_utf8encode($studip_user->vorname),
-                        'lastname'  => studip_utf8encode($studip_user->nachname),
+                        'firstname' => $studip_user->vorname,
+                        'lastname'  => $studip_user->nachname,
                         'email'     => $studip_user->email
-                    )
-                ));
+                    ]
+                ]];
 
                 REST::post('core_user_create_users', $data);
 
                 // create entry in moodle_connect_users
                 if (!$connected_user = array_pop(ConnectUsers::findbyEmail($studip_user->email))) {
-                    $connected_user = new ConnectUsers();
+                    $connected_user                  = new ConnectUsers();
                     $connected_user->moodle_username = $studip_user->email;
-                    $connected_user->email = $studip_user->email;
+                    $connected_user->email           = $studip_user->email;
                 }
                 $connected_user->moodle_password = $pw;
                 $connected_user->store();
 
-                $moodle_user = self::getUser(strtolower($studip_user->email));
+                $moodle_user = self::getUser(mb_strtolower($studip_user->email));
 
             } else {
                 // load users credentials from DB
                 $connected_user = array_pop(ConnectUsers::findByEmail($studip_user->email));
 
                 if (!$connected_user) {
-                    \PageLayout::postMessage(\MessageBox::error(sprintf(
-                        _('Es gibt bereits einen Nutzer in Moodle mit dieser Mail-Adresse, aber es konnte kein zugehöriges Passwort gefunden werden! (%s)'),
+                    \PageLayout::postError(sprintf(
+                        _('Es gibt bereits einen Nutzer in Moodle mit dieser Mail-Adresse, aber es konnte kein zugehÃ¶riges Passwort gefunden werden! (%s)'),
                         $studip_user->email
-                    )));
-                    //throw new \Exception('User exists in moodle, but no stored password to connect is found!');
+                    ));
                 }
             }
 
@@ -277,12 +286,12 @@ class Helper
         $moodle_user = self::getUser($username);
 
         $role_id = self::getIdForRole('editingteacher');
-        $courses = array();
+        $courses = [];
 
         if ($moodle_user) {
-            foreach(REST::post('core_enrol_get_users_courses', array(
+            foreach (REST::post('core_enrol_get_users_courses', [
                 'userid' => $moodle_user['id']
-            )) as $course) {
+            ]) as $course) {
                 $user_course = self::getUserInCourse($username, $course['id']);
 
                 foreach ($user_course['roles'] as $role) {

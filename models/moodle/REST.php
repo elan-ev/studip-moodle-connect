@@ -28,7 +28,7 @@ class REST
     {
         self::checkConfig();
 
-        $curl = curl_init(self::$uri .'/webservice/rest/server.php?wstoken=' .
+        $curl = curl_init(self::$uri . '/webservice/rest/server.php?wstoken=' .
             self::$token . '&wsfunction=' . $function . '&moodlewsrestformat=json');
 
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -37,7 +37,7 @@ class REST
         $curl_response = curl_exec($curl);
         curl_close($curl);
 
-        return self::except(\studip_utf8decode(json_decode($curl_response, true)), $function);
+        return self::except(\json_decode($curl_response, true), $function);
     }
 
 
@@ -45,26 +45,26 @@ class REST
     {
         self::checkConfig();
 
-        $curl = curl_init(self::$uri .'/webservice/rest/server.php?wstoken=' .
+        $curl = curl_init(self::$uri . '/webservice/rest/server.php?wstoken=' .
             self::$token . '&wsfunction=' . $function . '&moodlewsrestformat=json');
 
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, \studip_utf8encode(http_build_query($data)));
+        curl_setopt($curl, CURLOPT_POSTFIELDS, \http_build_query($data));
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);                       // follow redirects (fe http to https)
 
         $curl_response = curl_exec($curl);
         curl_close($curl);
 
-        return self::except(\studip_utf8decode(json_decode($curl_response, true)), $function);
+        return self::except(\json_decode($curl_response, true), $function);
     }
 
     /**
      * Throws an exception if an API response contains an exception, returns the
      * response if none is found
      *
-     * @param mixed $response  the response-array from the api-call
-     * @param string $api_route  the route whoch was tried to call
+     * @param mixed $response the response-array from the api-call
+     * @param string $api_route the route whoch was tried to call
      *
      * @return mixed $response
      *
