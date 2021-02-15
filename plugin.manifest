@@ -3,7 +3,7 @@ pluginclassname=MoodleConnect
 origin=elan-ev
 version=1.0.1
 studipMinVersion=4.2
-studipMaxVersion=4.4.99
+studipMaxVersion=4.5.99
 
 category = Inhalte und Aufgabenstellungen
 displayname = Moodlekonnektor
